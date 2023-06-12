@@ -26,7 +26,7 @@ import net.arcaniax.gopaint.listeners.InventoryListener;
 import net.arcaniax.gopaint.objects.other.NmsManager;
 import net.arcaniax.gopaint.objects.other.GlobalSettings;
 import net.arcaniax.gopaint.objects.player.PlayerBrushManager;
-import net.arcaniax.gopaint.utils.DisabledBlocks;
+import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;

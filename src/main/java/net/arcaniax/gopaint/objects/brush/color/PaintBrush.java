@@ -22,14 +22,13 @@ import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
 import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.objects.brush.Brush;
 import net.arcaniax.gopaint.objects.brush.ColorBrush;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.utils.BlockUtils;
-import net.arcaniax.gopaint.utils.Sphere;
-import net.arcaniax.gopaint.utils.Surface;
-import net.arcaniax.gopaint.utils.curve.BezierSpline;
+import net.arcaniax.gopaint.utils.blocks.BlockUtils;
+import net.arcaniax.gopaint.utils.math.Sphere;
+import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.math.curve.BezierSpline;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -138,8 +137,8 @@ public class PaintBrush extends ColorBrush {
     }
 
     @Override
-    public String getDescription() {
-        return "___&7Click to select______" + "&8Paints strokes___&8hold shift to end";
+    public String[] getDescription() {
+        return new String[] {"§7Paints strokes", "§7hold shift to end"};
     }
 
     @Override

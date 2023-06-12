@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.utils;
+package net.arcaniax.gopaint.utils.math;
 
+import net.arcaniax.gopaint.utils.blocks.BlockUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -37,6 +38,8 @@ public class Sphere {
         }
         return blocks;
     }
+
+
 
     public static List<Block> getBlocksInRadiusWithAir(Location middlePoint, double d) {
         List<Block> blocks = new ArrayList<>();

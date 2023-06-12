@@ -21,13 +21,12 @@ package net.arcaniax.gopaint.objects.brush.color;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
-import net.arcaniax.gopaint.objects.brush.Brush;
 import net.arcaniax.gopaint.objects.brush.ColorBrush;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.utils.Height;
-import net.arcaniax.gopaint.utils.Sphere;
-import net.arcaniax.gopaint.utils.Surface;
+import net.arcaniax.gopaint.utils.math.Height;
+import net.arcaniax.gopaint.utils.math.Sphere;
+import net.arcaniax.gopaint.utils.math.Surface;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -51,8 +50,8 @@ public class FractureBrush extends ColorBrush {
     }
 
     @Override
-    public String getDescription() {
-        return "___&7Click to select______" + "&8Places blocks in cracks/fisures";
+    public String[] getDescription() {
+        return new String[] {"§7Places blocks in cracks/fisures"};
     }
 
     @Override

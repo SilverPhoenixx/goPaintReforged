@@ -1,4 +1,4 @@
-package net.arcaniax.gopaint.utils;
+package net.arcaniax.gopaint.utils.blocks;
 
 import org.bukkit.Material;
 

@@ -83,7 +83,7 @@ public abstract class Brush {
         return session.getActor().getSession().getMask() == null || session.getActor().getSession().getMask().test(v);
     }
     public abstract String getName();
-    public abstract String getDescription();
+    public abstract String[] getDescription();
     public abstract String getSkin();
 
     public BrushSettings[] getSettings() {

@@ -2,7 +2,7 @@ package net.arcaniax.gopaint.objects.brush.settings;
 
 import net.arcaniax.gopaint.GoPaintPlugin;
 import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.Items;
+import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,12 +10,10 @@ public class ThicknessSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return Items.create(
-                        Material.BOOK,
-                        1,
-                        "&6Layer Thickness: &e" + playerBrush.getThickness(),
-                        "___&7Left click to increase___&7Right click to decrease"
-        );
+        return new ItemBuilder(Material.BOOK)
+                .setName("§6Layer Thickness: §e" + playerBrush.getThickness())
+                .setList("", "§7Left click to increase", "§7Right click to decrease")
+                .create();
     }
 
     public void increase(PlayerBrush playerBrush, boolean isShifting) {

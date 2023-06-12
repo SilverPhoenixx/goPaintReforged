@@ -3,18 +3,18 @@ package net.arcaniax.gopaint.objects.brush.color;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
-import net.arcaniax.gopaint.objects.brush.Brush;
 import net.arcaniax.gopaint.objects.brush.ColorBrush;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.utils.ColorPalette;
-import net.arcaniax.gopaint.utils.Sphere;
-import net.arcaniax.gopaint.utils.Surface;
+import net.arcaniax.gopaint.utils.blocks.ColorPalette;
+import net.arcaniax.gopaint.utils.math.Sphere;
+import net.arcaniax.gopaint.utils.math.Surface;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -91,8 +91,8 @@ public class RecolorBrush extends ColorBrush {
     }
 
     @Override
-    public String getDescription() {
-        return "___&7Click to select______" + "&8Brights (Left click) or Darken (Right click) blocks";
+    public String[] getDescription() {
+        return new String[] {"§7Brighten (Left click)", "§7Darken (Right click)"};
     }
 
     @Override

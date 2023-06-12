@@ -84,30 +84,30 @@ public class PlayerBrushManager {
         }
     }
 
-    public String getColorBrushLore(String name) {
+    public ArrayList<String> getColorBrushLore(ArrayList<String> lore, String name) {
         // &eSphere Brush___&8Spray Brush___&8Splatter Brush___&8Disc Brush___&8Bucket Brush___&8Angle Brush___&8Overlay Brush
         StringBuilder s = new StringBuilder();
         for (Brush b : colorBrushes) {
             if (b.getName().equalsIgnoreCase(name)) {
-                s.append("&e").append(b.getName()).append("___");
+                lore.add("§e" + b.getName());
             } else {
-                s.append("&8").append(b.getName()).append("___");
+                lore.add("§8" + b.getName());
             }
         }
-        return s.substring(0, s.length() - 3);
+        return lore;
     }
 
-    public String getBiomeBrushLore(String name) {
+    public ArrayList<String>  getBiomeBrushLore(ArrayList<String> lore, String name) {
         // &eSphere Brush___&8Spray Brush___&8Splatter Brush___&8Disc Brush___&8Bucket Brush___&8Angle Brush___&8Overlay Brush
         StringBuilder s = new StringBuilder();
         for (Brush b : biomeBrushes) {
             if (b.getName().equalsIgnoreCase(name)) {
-                s.append("&e").append(b.getName()).append("___");
+                lore.add("§e" + b.getName());
             } else {
-                s.append("&8").append(b.getName()).append("___");
+                lore.add("§8" + b.getName());
             }
         }
-        return s.substring(0, s.length() - 3);
+        return lore;
     }
 
     public Brush getColorBrush(String name) {

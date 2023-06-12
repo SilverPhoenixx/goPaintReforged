@@ -1,7 +1,7 @@
 package net.arcaniax.gopaint.objects.brush.settings;
 
 import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.Items;
+import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,12 +9,10 @@ public class MixingSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return Items.create(
-                Material.MAGMA_CREAM,
-                1,
-                "&6Mixing Strength: &e" + playerBrush.getMixingStrength() + "%",
-                "___&7Left click to increase___&7Right click to decrease"
-        );
+        return new ItemBuilder(Material.MAGMA_CREAM)
+                .setName("§6Mixing Strength: §e" + playerBrush.getMixingStrength() + "%")
+                .setList("", "§7Left click to increase", "§7Right click to decrease")
+                .create();
     }
 
     public void decrease(PlayerBrush playerBrush, boolean isShifting) {

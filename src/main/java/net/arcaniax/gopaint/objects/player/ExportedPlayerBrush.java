@@ -18,6 +18,8 @@
  */
 package net.arcaniax.gopaint.objects.player;
 
+import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.biome.BiomeTypes;
 import net.arcaniax.gopaint.GoPaintPlugin;
 import org.bukkit.Material;
 
@@ -31,6 +33,7 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
         super();
         brush = GoPaintPlugin.getBrushManager().getColorBrush(name.replaceAll(" §b♦ ", ""));
         blocks = new ArrayList<>();
+        biomeTypes = new ArrayList<>();
         for (String s : lore) {
             if (s.startsWith("§8Size: ")) {
                 this.brushSize = Integer.parseInt(s.replaceAll("§8Size: ", ""));
@@ -58,8 +61,15 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
             if (s.startsWith("§8Falloff: ")) {
                 this.falloffStrength = Integer.parseInt(s.replaceAll("§8Falloff: ", ""));
             }
-            if(s.startsWith("§8Biome")) {
-                this.biome = true;
+            if(s.startsWith("§8Biome: ")) {
+                s = s.replaceAll("§8Blocks: ", "");
+                if (!s.equals("none")) {
+                    for (String s2 : s.split(" ")) {
+                        String[] type = s2.split("\\:");
+                        BiomeType biomeType = BiomeTypes.get(type[0].toLowerCase());
+                        this.biomeTypes.add(biomeType);
+                    }
+                }
             }
             if (s.startsWith("§8Blocks: ")) {
                 s = s.replaceAll("§8Blocks: ", "");

@@ -2,7 +2,7 @@ package net.arcaniax.gopaint.objects.brush.settings;
 
 import net.arcaniax.gopaint.GoPaintPlugin;
 import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.Items;
+import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,12 +10,10 @@ public class SizeSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return Items.create(
-                        Material.BROWN_MUSHROOM,
-                        1,
-                        "&6Brush Size: &e" + playerBrush.getBrushSize(),
-                        "___&7Left click to increase___&7Right click to decrease___&7Shift click to change by 10"
-                );
+        return new ItemBuilder(Material.BROWN_MUSHROOM)
+                .setName("§6Brush Size: §e" + playerBrush.getBrushSize())
+                .setList("", "§7Left click to increase", "§7Right click to decrease", "§7Shift click to change by 10")
+                .create();
     }
 
     @Override

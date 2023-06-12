@@ -47,51 +47,34 @@ public class InteractListener implements Listener {
         Player player = e.getPlayer();
         Location location;
 
-        if (GoPaintPlugin.nmsManager.isAtLeastVersion(1, 9, 0)) {
-            if (e.getHand() == EquipmentSlot.OFF_HAND) {
-                return;
-            }
+        if (e.getHand() == EquipmentSlot.OFF_HAND) {
+            return;
         }
+
         if (!e.getPlayer().hasPermission("gopaint.use")) {
             return;
         }
 
 
-        if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR)) {
-            location = player.getTargetBlock(null, 250).getLocation().clone();
-        } else {
-            location = e.getClickedBlock().getLocation().clone();
-        }
-
-        if (location.getBlock().getType().equals(Material.AIR)) {
-            return;
-        }
-
-
-        if ((!e.getPlayer().hasPermission("gopaint.world.bypass")) && (GoPaintPlugin
-                .getSettings()
-                .getDisabledWorlds()
-                .contains(location.getWorld().getName()))) {
-            return;
-        }
-
-
         AbstractPlayerBrush playerBrush;
-        if (e.getPlayer().getItemInHand().hasItemMeta() &&
-                e.getPlayer().getItemInHand().getItemMeta().hasDisplayName() &&
-                e.getPlayer()
-                        .getItemInHand()
-                        .getItemMeta()
-                        .getDisplayName()
-                        .startsWith(" §b♦ ") && e.getPlayer().getItemInHand().getItemMeta().hasLore()) {
-            playerBrush = new ExportedPlayerBrush(player.getItemInHand()
-                    .getItemMeta()
-                    .getDisplayName(), e.getPlayer().getItemInHand().getItemMeta().getLore());
-        } else if(player.getInventory().getItemInMainHand().getType() == Material.FEATHER) {
-           playerBrush = GoPaintPlugin.getBrushManager().getPlayerBrush(player);
+        /** if (e.getPlayer().getItemInHand().hasItemMeta() &&
+         e.getPlayer().getItemInHand().getItemMeta().hasDisplayName() &&
+         e.getPlayer()
+         .getItemInHand()
+         .getItemMeta()
+         .getDisplayName()
+         .startsWith(" §b♦ ") && e.getPlayer().getItemInHand().getItemMeta().hasLore()) {
+         playerBrush = new ExportedPlayerBrush(player.getItemInHand()
+         .getItemMeta()
+         .getDisplayName(), e.getPlayer().getItemInHand().getItemMeta().getLore());
+         } else */
+
+        if(player.getInventory().getItemInMainHand().getType() == Material.FEATHER) {
+            playerBrush = GoPaintPlugin.getBrushManager().getPlayerBrush(player);
         } else {
             return;
         }
+
 
         if(player.isSneaking() && (e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
             Player p = e.getPlayer();
@@ -107,6 +90,24 @@ public class InteractListener implements Listener {
             return;
         }
 
-        playerBrush.getBrush().interact(e, playerBrush, location);
+
+        if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR)) {
+            location = player.getTargetBlock(null, 250).getLocation().clone();
+        } else {
+            location = e.getClickedBlock().getLocation().clone();
         }
+
+        if (location.getBlock().getType().equals(Material.AIR)) {
+            return;
+        }
+
+        if ((!e.getPlayer().hasPermission("gopaint.world.bypass")) && (GoPaintPlugin
+                .getSettings()
+                .getDisabledWorlds()
+                .contains(location.getWorld().getName()))) {
+            return;
+        }
+
+        playerBrush.getBrush().interact(e, playerBrush, location);
+    }
 }

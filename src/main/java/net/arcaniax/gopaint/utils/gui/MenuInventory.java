@@ -5,16 +5,16 @@ import net.arcaniax.gopaint.GoPaintPlugin;
 import net.arcaniax.gopaint.objects.brush.settings.AbstractSetting;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.DisabledBlocks;
+import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
 import net.arcaniax.gopaint.utils.ItemBuilder;
-import net.arcaniax.gopaint.utils.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
 
 public class MenuInventory extends GoPaintInventory {
 
@@ -27,7 +27,9 @@ public class MenuInventory extends GoPaintInventory {
         for (int slot = 0; slot < 54; slot++) {
             this.inventory.setItem(
                     slot,
-                    Items.create(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1, "§c", "")
+                    new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
+                            .setName("§c")
+                            .create()
             );
         }
 
@@ -37,60 +39,55 @@ public class MenuInventory extends GoPaintInventory {
         Material material = playerBrush.isEnabled() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
         this.inventory.setItem(
                 1,
-                Items.create(
-                        material,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(material)
+                        .setName("§7")
+                           .create()
         );
 
         /*
         goPaint Item (Feather)
         */
-        String goPaintStatus = playerBrush.isEnabled() ? "&a&lEnabled" : "&c&lDisabled";
+        String goPaintStatus = playerBrush.isEnabled() ? "§a§lEnabled" : "§c§lDisabled";
         this.inventory.setItem(
                 10,
-                Items.create(
-                        Material.FEATHER,
-                        1,
-                        "&6goPaint Brush",
-                          goPaintStatus + "______&7Left click with item to export___&7Right click to toggle"
-                )
+                new ItemBuilder(Material.FEATHER)
+                        .setName("§6goPaint Brush")
+                        .setList(goPaintStatus, "", "", "§7Left click with item to export", "§7Right click to toggle")
+                        .create()
         );
 
 
         // Brushes + Chance
         this.inventory.setItem(
                 2,
-                Items.create(
-                        Material.ORANGE_STAINED_GLASS_PANE,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE)
+                        .setName("§7")
+                        .create()
         );
 
         /*
         Brush Item with dynamic description
         */
-        String clicks = "___&7Shift click to select___&7Click to cycle brush______";
 
-        String lore = "";
+        ArrayList<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add("§7Shift click to select");
+        lore.add("§7Click to cycle brush");
+        lore.add("");
+        lore.add("");
         if(playerBrush.isBiome()) {
-            lore = clicks + GoPaintPlugin.getBrushManager().getBiomeBrushLore(playerBrush.getBrush().getName());
+            GoPaintPlugin.getBrushManager().getBiomeBrushLore(lore, playerBrush.getBrush().getName());
         } else {
-            lore = clicks + GoPaintPlugin.getBrushManager().getColorBrushLore(playerBrush.getBrush().getName());
+            GoPaintPlugin.getBrushManager().getColorBrushLore(lore, playerBrush.getBrush().getName());
         }
 
         this.inventory.setItem(
                 11,
-                Items.createHead(
-                        playerBrush.getBrush().getSkin(),
-                        1,
-                        "&6Selected Brush type",
-                        lore
-                )
+                new ItemBuilder(Material.PLAYER_HEAD)
+                        .setName("§6Selected Brush type")
+                        .setCustomHead(playerBrush.getBrush().getSkin())
+                        .setList(lore)
+                        .create()
         );
 
         // Mask toggle
@@ -98,71 +95,56 @@ public class MenuInventory extends GoPaintInventory {
                 Material.RED_STAINED_GLASS_PANE;
         this.inventory.setItem(
                 6,
-                Items.create(
-                        maskStatusMaterial,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(maskStatusMaterial)
+                        .setName("§7")
+                        .create()
         );
 
-        String maskStatus = playerBrush.isMaskEnabled() ? "&a&lEnabled" : "&c&lDisabled";
+        String maskStatus = playerBrush.isMaskEnabled() ? "§a§lEnabled" : "§c§lDisabled";
         Material maskMaterial = playerBrush.isMaskEnabled() ? Material.JACK_O_LANTERN : Material.PUMPKIN;
         this.inventory.setItem(
                 15,
-                Items.create(
-                        maskMaterial,
-                        1,
-                        "&6 Mask",
-                        maskStatus + "______&7Click to toggle"
-                )
+                new ItemBuilder(maskMaterial)
+                        .setName("§6Mask")
+                        .setList( maskStatus, "", "", "§7Click to toggle")
+                        .create()
         );
 
         // Mask Item Pane
         this.inventory.setItem(
                 7,
-                Items.create(
-                        Material.ORANGE_STAINED_GLASS_PANE,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE)
+                        .setName("§7")
+                        .create()
         );
 
         Material maskItem = playerBrush.getMask();
         this.inventory.setItem(
                 16,
-                Items.create(
-                        maskItem,
-                        1,
-                        "&6 Mask Item",
-                        "&7Click with other block to change"
-                )
+                new ItemBuilder(maskItem)
+                        .setName("§6Mask Item")
+                        .setList("§7Click with other block to change")
+                        .create()
         );
 
 
 
-        String surfaceModeStatus = playerBrush.isSurfaceModeEnabled() ? "&a&lEnabled" : "&c&lDisabled";
+        String surfaceModeStatus = playerBrush.isSurfaceModeEnabled() ? "§a§lEnabled" : "§c§lDisabled";
         this.inventory.setItem(
                 12,
-                Items.create(
-                        Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
-                        1,
-                        "&6Surface Mode",
-                         surfaceModeStatus + "______&7Click to toggle"
-                )
+                new ItemBuilder(Material.LIGHT_WEIGHTED_PRESSURE_PLATE)
+                        .setName("§6Surface Mode")
+                        .setList(surfaceModeStatus, "", "", "§7Click to toggle")
+                        .create()
         );
 
         // Surface Mode toggle
         Material surfaceMaterial = playerBrush.isSurfaceModeEnabled() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
         this.inventory.setItem(
                 3,
-                Items.create(
-                        surfaceMaterial,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(surfaceMaterial)
+                        .setName("§7")
+                        .create()
         );
 
 
@@ -172,26 +154,21 @@ public class MenuInventory extends GoPaintInventory {
         Material biomeMaterial = playerBrush.isBiome() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
         this.inventory.setItem(
                 4,
-                Items.create(
-                        biomeMaterial,
-                        1,
-                        "&7",
-                        ""
-                )
+                new ItemBuilder(biomeMaterial)
+                        .setName("§7")
+                        .create()
         );
 
         /*
         Biome Item (GRASS_BLOCK)
         */
-        String biomeStatus = playerBrush.isBiome() ? "&a&lEnabled" : "&c&lDisabled";
+        String biomeStatus = playerBrush.isBiome() ? "§a§lEnabled" : "§c§lDisabled";
         this.inventory.setItem(
                 13,
-                Items.create(
-                        Material.GRASS_BLOCK,
-                        1,
-                        "&6goPaint Biomes",
-                        biomeStatus + "______&7Right / Left click to toggle"
-                )
+                new ItemBuilder(Material.GRASS_BLOCK)
+                        .setName("§6goPaint Biomes")
+                        .setList(biomeStatus, "", "", "§7Right / Left click to toggle")
+                        .create()
         );
 
 
@@ -202,7 +179,10 @@ public class MenuInventory extends GoPaintInventory {
         for(BrushSettings brushSetting : playerBrush.getBrush().getSettings()) {
             AbstractSetting abstractSetting = brushSetting.getSetting();
             this.inventory.setItem(28 + currentSetting, abstractSetting.getItem(playerBrush));
-            this.inventory.setItem(19 + currentSetting, Items.create(Material.WHITE_STAINED_GLASS_PANE, 1, "§a", ""));
+            this.inventory.setItem(19 + currentSetting,
+                    new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE)
+                            .setName("§a")
+                            .create());
             currentSetting++;
         }
 
@@ -211,22 +191,17 @@ public class MenuInventory extends GoPaintInventory {
         for (int x = 37; x <= 43; x++) {
             this.inventory.setItem(
                     x,
-                    Items.create(
-                            Material.GRAY_STAINED_GLASS_PANE,
-                            1,
-                            "&7",
-                            ""
-                    )
+                    new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
+                            .setName("§7")
+                            .create()
             );
 
             this.inventory.setItem(
                     x+9,
-                    Items.create(
-                            Material.BARRIER,
-                            1,
-                            "&cEmpty Slot",
-                            "___&7Click with a block to set"
-                    )
+                    new ItemBuilder(Material.BARRIER)
+                            .setName("§cEmpty Slot")
+                            .setList("", "§7Click with a block to set")
+                            .create()
             );
         }
 
@@ -340,6 +315,7 @@ public class MenuInventory extends GoPaintInventory {
                     }
                     case SHIFT_RIGHT:
                     case SHIFT_LEFT: {
+                        if(!playerBrush.isBiome())
                         player.openInventory(new BrushesInventory().createInventory(playerBrush));
                         break;
                     }

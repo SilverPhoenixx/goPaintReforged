@@ -3,12 +3,15 @@ package net.arcaniax.gopaint.utils.gui;
 import net.arcaniax.gopaint.GoPaintPlugin;
 import net.arcaniax.gopaint.objects.brush.Brush;
 import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.Items;
+import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BrushesInventory extends GoPaintInventory {
 
@@ -19,24 +22,32 @@ public class BrushesInventory extends GoPaintInventory {
         for (int x = 0; x < 27; x++) {
             this.inventory.setItem(
                     x,
-                    Items.create(
-                            Material.GRAY_STAINED_GLASS_PANE,
-                            1,
-                            "&7",
-                            ""
-                    )
+                    new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
+                            .setName("§7")
+                            .create()
             );
         }
         int x = 0;
+
+
+        ArrayList<String> mainBrushLore = new ArrayList<>();
+        mainBrushLore.add("");
+        mainBrushLore.add("§7Click to select");
+        mainBrushLore.add("");
+        mainBrushLore.add("");
         for (Brush brush : GoPaintPlugin.getBrushManager().getColorBrushes()) {
+
+            ArrayList<String> brushLore = new ArrayList<>();
+            brushLore.addAll(mainBrushLore);
+            brushLore.addAll(Arrays.stream(brush.getDescription()).toList());
+
             this.inventory.setItem(
                     x,
-                    Items.createHead(
-                            brush.getSkin(),
-                            1,
-                            "&6" + brush.getName(),
-                            brush.getDescription()
-                    )
+                    new ItemBuilder(Material.PLAYER_HEAD)
+                            .setName("§6" + brush.getName())
+                            .setList(brushLore)
+                            .setCustomHead(brush.getSkin())
+                            .create()
             );
             x++;
         }

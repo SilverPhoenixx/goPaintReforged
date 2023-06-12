@@ -214,14 +214,29 @@ public class AbstractPlayerBrush {
         } else if (brush instanceof FractureBrush) {
             lore.append("___&8FractureDistance: ").append(this.fractureDistance);
         }
+
         lore.append("___&8Blocks:");
         if (blocks.isEmpty()) {
             lore.append(" none");
         } else {
-            for (Object material : blocks) {
+            for (Material material : blocks) {
                 lore.append(" ").append(material.toString().toLowerCase());
             }
         }
+
+        if(isBiome()) {
+            lore.append("___&8Biome Mode");
+        }
+
+        lore.append("___&8Biomes:");
+        if (biomeTypes.isEmpty()) {
+            lore.append(" none");
+        } else {
+            for (BiomeType biomeType : biomeTypes) {
+                lore.append(" ").append(biomeType.getId());
+            }
+        }
+
         if (maskEnabled) {
             lore.append("___&8Mask: ").append(mask.toString());
         }

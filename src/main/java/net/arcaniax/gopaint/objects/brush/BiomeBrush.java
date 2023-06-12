@@ -1,7 +1,6 @@
 package net.arcaniax.gopaint.objects.brush;
 
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
@@ -20,10 +19,11 @@ public abstract class BiomeBrush extends Brush {
 
         for(Pair<Integer, Integer> chunkCoords : chunks) {
             Chunk bukkitChunk = player.getWorld().getChunkAt(chunkCoords.getLeft(), chunkCoords.getRight());
-            net.minecraft.world.level.chunk.Chunk  minecraftChunk = ((CraftChunk) bukkitChunk).getHandle();
+            net.minecraft.world.level.chunk.Chunk  minecraftChunk =
+                    ((CraftChunk) bukkitChunk).getHandle();
+
             ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(minecraftChunk,
-                    minecraftChunk.D().l_(), null, null,
-                    true);
+                    minecraftChunk.D().l_(), null, null, false);
 
 
             for(Player worldPlayer : player.getWorld().getPlayers())

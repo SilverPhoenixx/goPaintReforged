@@ -19,20 +19,16 @@
 package net.arcaniax.gopaint.objects.brush.biome;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3Imp;
 import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import net.arcaniax.gopaint.objects.brush.BiomeBrush;
-import net.arcaniax.gopaint.objects.brush.Brush;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.other.BlockPlace;
 import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.utils.Sphere;
-import net.arcaniax.gopaint.utils.Surface;
+import net.arcaniax.gopaint.utils.math.Sphere;
+import net.arcaniax.gopaint.utils.math.Surface;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -54,7 +50,7 @@ public class SphereBiomeBrush extends BiomeBrush {
         List<BiomeType> pbBlocks = playerBrush.getBiomeTypes();
         if (pbBlocks.isEmpty()) return;
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
+        List<Block> blocks = Sphere.getBlocksInRadiusWithAir(loc, size);
         List<Pair<Integer, Integer>> chunks = new ArrayList<>();
 
         for (Block b : blocks) {
@@ -101,8 +97,8 @@ public class SphereBiomeBrush extends BiomeBrush {
     }
 
     @Override
-    public String getDescription() {
-        return "___&7Click to select______" + "&8Regular Biome Sphere brush";
+    public String[] getDescription() {
+        return new String[] {"§7Regular Biome Sphere brush"};
     }
 
     @Override
