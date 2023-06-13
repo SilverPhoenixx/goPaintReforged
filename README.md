@@ -32,3 +32,52 @@ Only 1.19.2 is tested
 * [Development Builds](https://ci.athion.net/job/goPaint-1.14+/)
 * [Discord](https://discord.gg/jpRVrjd)
 * [Issues](https://github.com/Brennian/goPaint_1.14/issues)
+
+## API
+
+If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"** [in net.arcaniax.gopaint.objects.brush]
+
+BiomeBrushes are shown when "Biome" is enabled
+ColorBrushes are shown when "Biome" is disabled
+
+You can add only upto **9** settings for a brush.
+
+When you initialize your plugin add the brush to the PlayerBrushManager
+
+**ColorBrush:** GoPaintPlugin.getBrushManager().getColorBrushes().add(new ExampleBrush());
+<br><br>
+**BiomeBrush:** GoPaintPlugin.getBrushManager().getBiomeBrushes().add(new ExampleBrush());
+
+    public class ExampleBrush extends ColorBrush {
+        public ExampleBrush() {
+            super(new BrushSettings[] {
+                    BrushSettings.SIZE,
+            });
+        }
+
+        @Override
+        public String getName() {
+            return "Example Brush";
+        }
+
+        @Override
+        public String[] getDescription() {
+            return new String[] {"§7Only works as example"};
+        }
+        /**
+        * https://minecraft-heads.com/custom-heads/
+        * Click on a head you want to use
+        * Scroll below to "OTHER"
+        * Copy "Value"
+        @Override
+        public String getSkin() {
+            return "HEAD SKIN";
+        }
+
+        @Override
+        public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+        }
+    }
+
+
+

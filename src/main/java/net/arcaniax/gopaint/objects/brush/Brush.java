@@ -39,8 +39,10 @@ public abstract class Brush {
 
     protected BrushSettings[] settings;
 
-    public Brush(BrushSettings[] settings) {
+    public Brush(BrushSettings[] settings) throws Exception {
         this.settings = settings;
+
+        if(settings.length >= 10) throw new Exception("You can only add 9 settings to a brush [in: " + this.getClass().getName() + "]");
     }
 
     public abstract void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session);

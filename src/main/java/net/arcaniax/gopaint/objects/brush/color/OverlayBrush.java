@@ -23,7 +23,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
 import net.arcaniax.gopaint.objects.brush.ColorBrush;
 import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.other.BlockPlace;
+import net.arcaniax.gopaint.utils.BlockPlace;
 import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Height;
 import net.arcaniax.gopaint.utils.math.Sphere;
