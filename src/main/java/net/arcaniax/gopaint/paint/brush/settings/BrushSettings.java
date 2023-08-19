@@ -16,27 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.utils;
+package net.arcaniax.gopaint.paint.brush.settings;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
+public enum BrushSettings {
 
-public class BlockPlace {
+    CHANCE(new ChanceSetting()),
+    ANGLE_DISTANCE(new AngleDistanceSetting()),
+    ANGLE_HEIGHT(new AngleHeightSetting()),
+    AXIS(new AxisSetting()),
+    SIZE(new SizeSetting()),
+    MIXING(new MixingSetting()),
+    THICKNESS(new ThicknessSetting()),
+    FALLOFF_STRENGTH(new FalloffStrengthSetting()),
+    FRACTURE(new FractureSetting());
 
-    private Location location;
-    private Material material;
 
-    public BlockPlace(Location location, Material material) {
-        this.location = location;
-        this.material = material;
+    private final AbstractSetting setting;
+
+    BrushSettings(AbstractSetting setting) {
+        this.setting = setting;
     }
 
-    public Material getMaterial() {
-        return material;
+    public AbstractSetting getSetting() {
+        return setting;
     }
-
-    public Location getLocation() {
-        return location;
-    }
-
 }
