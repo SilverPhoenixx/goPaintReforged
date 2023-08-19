@@ -78,13 +78,13 @@ version = String.format("%s-%s", rootProject.version, buildNumber)
 
 bukkit {
     name = "goPaint"
-    main = "net.arcaniax.gopaint.GoPaintPlugin"
+    main = "net.arcaniax.gopaint.GoPaint"
     authors = listOf("Arcaniax")
     apiVersion = "1.13"
     version = project.version.toString()
     depend = listOf("WorldEdit")
     website = "https://www.spigotmc.org/resources/27717/"
-
+    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     commands {
         register("gopaint") {
             description = "goPaint command"
