@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.brush.color;
+package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
-import net.arcaniax.gopaint.objects.brush.ColorBrush;
-import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.ColorBrush;
+import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
 import org.bukkit.Location;
@@ -34,61 +34,63 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Random;
 
-public class SprayBrush extends ColorBrush {
+public class SplatterBrush extends ColorBrush {
 
-    public SprayBrush() {
+    public SplatterBrush() throws Exception {
         super(new BrushSettings[] {
                 BrushSettings.SIZE,
-                BrushSettings.CHANCE,
                 BrushSettings.FALLOFF_STRENGTH
         });
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
         int size = playerBrush.getBrushSize();
+        int falloff = playerBrush.getFalloffStrength();
         List<Material> pbBlocks = playerBrush.getBlocks();
-        if (pbBlocks.isEmpty()) return;
-
+        if (pbBlocks.isEmpty()) {
+            return;
+        }
         List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
         for (Block b : blocks) {
             if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
                 if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
                         .getMask()))) {
                     Random r = new Random();
-                    if (r.nextInt(100) < playerBrush.getChance()) {
+                    double rate = (b
+                            .getLocation()
+                            .distance(loc) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) / (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
+                    if (!(r.nextDouble() <= rate)) {
                         int random = r.nextInt(pbBlocks.size());
-
                         Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
                         if (isGmask(session, vector3.toBlockPoint())) {
                             try {
-                                    session.setBlock(
-                                            b.getX(), b.getY(), b.getZ(),
-                                            BukkitAdapter.asBlockType(pbBlocks.get(random)).getDefaultState()
-                                    );
+                                session.setBlock(
+                                        b.getX(), b.getY(), b.getZ(),
+                                        BukkitAdapter.asBlockType(playerBrush.getBlocks().get(random)).getDefaultState()
+                                );
                             } catch (Exception ignored) {
                             }
                         }
                     }
                 }
             }
-
         }
     }
 
     @Override
     public String getName() {
-        return "Spray Brush";
+        return "Splatter Brush";
     }
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Configurable random chance brush"};
+        return new String[] {"§7More chance when closer", "§7to the clicked point", "§7and configurable chance"};
     }
 
     @Override
     public String getSkin() {
-        return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjg4MGY3NjVlYTgwZGVlMzcwODJkY2RmZDk4MTJlZTM2ZmRhODg0ODY5MmE4NDFiZWMxYmJkOWVkNTFiYTIyIn19fQ==";
+        return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzMzODI5MmUyZTY5ZjA5MDY5NGNlZjY3MmJiNzZmMWQ4Mzc1OGQxMjc0NGJiNmZmYzY4MzRmZGJjMWE5ODMifX19";
     }
+
 }

@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.brush.color;
+package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.block.BlockState;
-import net.arcaniax.gopaint.objects.brush.ColorBrush;
-import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.ColorBrush;
+import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.blocks.ConnectedBlocks;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
@@ -38,7 +38,7 @@ import java.util.Random;
 
 public class BucketBrush extends ColorBrush {
 
-    public BucketBrush() {
+    public BucketBrush() throws Exception {
         super(new BrushSettings[] {
             BrushSettings.SIZE
         });
