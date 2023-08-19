@@ -18,23 +18,23 @@
  */
 package net.arcaniax.gopaint.listeners;
 
-import net.arcaniax.gopaint.GoPaintPlugin;
+import net.arcaniax.gopaint.GoPaint;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class ConnectListener implements Listener {
+public class PlayerQuitListener implements Listener {
 
-    public GoPaintPlugin plugin;
+    public GoPaint plugin;
 
-    public ConnectListener(GoPaintPlugin main) {
-        plugin = main;
+    public PlayerQuitListener(GoPaint plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent e) {
-        GoPaintPlugin.getBrushManager().removePlayerBrush(e.getPlayer());
+        GoPaint.getBrushManager().removePlayerBrush(e.getPlayer());
     }
 
 }

@@ -18,8 +18,8 @@
  */
 package net.arcaniax.gopaint.listeners;
 
-import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.utils.gui.GoPaintInventory;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.inventories.GoPaintInventory;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -28,16 +28,16 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class InventoryListener implements Listener {
 
-    public GoPaintPlugin plugin;
+    public GoPaint plugin;
 
-    public InventoryListener(GoPaintPlugin main) {
-        plugin = main;
+    public InventoryListener(GoPaint plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void menuClick(InventoryClickEvent event) {
         try {
-            if (!(event.getClickedInventory().getHolder() instanceof GoPaintInventory)) {
+            if (!(event.getClickedInventory().getHolder() instanceof final GoPaintInventory goPaintInventory)) {
                 return;
             }
 
@@ -47,12 +47,9 @@ public class InventoryListener implements Listener {
                 }
                 return;
             }
-
             event.setCancelled(true);
 
-            GoPaintInventory goPaintInventory = (GoPaintInventory) event.getClickedInventory().getHolder();
             goPaintInventory.interactInventory(event);
-
         } catch (NullPointerException e) {
             event.setCancelled(true);
         }
