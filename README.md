@@ -35,7 +35,7 @@ Only 1.19.2 is tested
 
 ## API
 
-If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"** [in net.arcaniax.gopaint.objects.brush]
+If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"** [in net.arcaniax.gopaint.paint.brush]
 
 BiomeBrushes are shown when "Biome" is enabled
 ColorBrushes are shown when "Biome" is disabled
