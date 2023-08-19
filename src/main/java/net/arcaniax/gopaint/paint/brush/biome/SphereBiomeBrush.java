@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.brush.biome;
+package net.arcaniax.gopaint.paint.brush.biome;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.math.BlockVector3Imp;
 import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.biome.BiomeType;
-import net.arcaniax.gopaint.objects.brush.BiomeBrush;
-import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.BiomeBrush;
+import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,8 +38,8 @@ import java.util.Random;
 
 public class SphereBiomeBrush extends BiomeBrush {
 
-    public SphereBiomeBrush() {
-        super(new BrushSettings[] {
+    public SphereBiomeBrush() throws Exception {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE
         });
     }
@@ -48,7 +48,9 @@ public class SphereBiomeBrush extends BiomeBrush {
     public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
         int size = playerBrush.getBrushSize();
         List<BiomeType> pbBlocks = playerBrush.getBiomeTypes();
-        if (pbBlocks.isEmpty()) return;
+        if (pbBlocks.isEmpty()) {
+            return;
+        }
 
         List<Block> blocks = Sphere.getBlocksInRadiusWithAir(loc, size);
         List<Pair<Integer, Integer>> chunks = new ArrayList<>();
@@ -66,15 +68,14 @@ public class SphereBiomeBrush extends BiomeBrush {
                             int chunkZ = b.getChunk().getZ();
                             Pair<Integer, Integer> chunkCoords = Pair.of(chunkX, chunkZ);
 
-                            if(!chunks.contains(chunkCoords)) {
+                            if (!chunks.contains(chunkCoords)) {
                                 chunks.add(chunkCoords);
                             }
 
-                            if(session.setBiome(
+                            session.setBiome(
                                     BlockVector3Imp.at(b.getX(), b.getY(), b.getZ()),
                                     pbBlocks.get(random)
-                            )) {
-                            }
+                            );
 
 
                         } catch (Exception ignored) {
@@ -98,7 +99,7 @@ public class SphereBiomeBrush extends BiomeBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Regular Biome Sphere brush"};
+        return new String[]{"§7Regular Biome Sphere brush"};
     }
 
     @Override

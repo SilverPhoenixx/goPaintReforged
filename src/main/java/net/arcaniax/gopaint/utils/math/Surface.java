@@ -23,6 +23,14 @@ import org.bukkit.Material;
 
 public class Surface {
 
+
+    /**
+     * Checks if the block is on surface
+     *
+     * @param blockLoc checked location
+     * @param playerLoc player location
+     * @return true when its on surface and false when its not the surface
+     */
     public static boolean isOnSurface(Location blockLoc, Location playerLoc) {
         playerLoc.add(0, 1.5, 0);
         double distanceX = playerLoc.getX() - blockLoc.getX();

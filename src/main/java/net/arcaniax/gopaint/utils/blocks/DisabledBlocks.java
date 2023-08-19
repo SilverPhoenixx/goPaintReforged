@@ -25,7 +25,7 @@ import java.util.List;
 
 public class DisabledBlocks {
 
-    private static final List<Material> disabledMaterials = new ArrayList();
+    private static final List<Material> disabledMaterials = new ArrayList<>();
 
     public static void addBlocks() {
         disabledMaterials.add(Material.ENCHANTING_TABLE);

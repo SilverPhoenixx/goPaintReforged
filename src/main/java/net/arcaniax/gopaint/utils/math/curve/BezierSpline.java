@@ -34,7 +34,7 @@ public class BezierSpline {
     private Location anchorPoint;
 
     public BezierSpline() {
-        knotsList = new LinkedList<Location>();
+        knotsList = new LinkedList<>();
         segments = new BezierSplineSegment[0];
         length = 0;
     }

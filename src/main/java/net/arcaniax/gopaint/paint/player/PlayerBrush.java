@@ -16,18 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.player;
+package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
-import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.utils.gui.MenuInventory;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.inventories.MenuInventory;
+import net.arcaniax.gopaint.paint.brush.BiomeBrush;
+import net.arcaniax.gopaint.paint.brush.ColorBrush;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class PlayerBrush extends AbstractPlayerBrush {
 
-    private Player player;
+    private final Player player;
 
     public PlayerBrush(Player player) {
         this.player = player;
@@ -71,22 +73,22 @@ public class PlayerBrush extends AbstractPlayerBrush {
 
 
     public void cycleColorBrush() {
-        brush = GoPaintPlugin.getBrushManager().cycleColor(brush);
+        brush = GoPaint.getBrushManager().cycleColor((ColorBrush) brush);
         updateInventory();
     }
 
     public void cycleColorBrushBackwards() {
-        brush = GoPaintPlugin.getBrushManager().cycleBackColor(brush);
+        brush = GoPaint.getBrushManager().cycleBackColor((ColorBrush) brush);
         updateInventory();
     }
 
     public void cycleBiomeBrush() {
-        brush = GoPaintPlugin.getBrushManager().cycleBiome(brush);
+        brush = GoPaint.getBrushManager().cycleBiomes((BiomeBrush) brush);
         updateInventory();
     }
 
     public void cycleBiomeBrushBackwards() {
-        brush = GoPaintPlugin.getBrushManager().cycleBackBiome(brush);
+        brush = GoPaint.getBrushManager().cycleBackBiomes((BiomeBrush) brush);
         updateInventory();
     }
 
@@ -94,10 +96,10 @@ public class PlayerBrush extends AbstractPlayerBrush {
         this.brushSize += change;
     }
     public void setBrushSize(int size) {
-        if (size <= GoPaintPlugin.getSettings().getMaxSize() && size > 0) {
+        if (size <= GoPaint.getSettings().getMaxSize() && size > 0) {
             brushSize = size;
-        } else if (size > GoPaintPlugin.getSettings().getMaxSize()) {
-            brushSize = GoPaintPlugin.getSettings().getMaxSize();
+        } else if (size > GoPaint.getSettings().getMaxSize()) {
+            brushSize = GoPaint.getSettings().getMaxSize();
         } else {
             brushSize = 1;
         }
@@ -115,12 +117,12 @@ public class PlayerBrush extends AbstractPlayerBrush {
     }
 
     public void toggleBiome() {
-        biome = !biome;
+        biomeBrush = !biomeBrush;
 
-        if(biome) {
-            brush = GoPaintPlugin.getBrushManager().getBiomeBrushes().get(0);
+        if(biomeBrush) {
+            brush = GoPaint.getBrushManager().getBiomesBrushes().get(0);
         } else {
-            brush = GoPaintPlugin.getBrushManager().getColorBrushes().get(0);
+            brush = GoPaint.getBrushManager().getColorBrushes().get(0);
         }
 
         updateInventory();

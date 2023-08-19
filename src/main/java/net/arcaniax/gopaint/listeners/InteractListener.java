@@ -10,7 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSevent.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -18,11 +18,11 @@
  */
 package net.arcaniax.gopaint.listeners;
 
-import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.objects.player.ExportedPlayerBrush;
-import net.arcaniax.gopaint.objects.player.PlayerBrush;
-import net.arcaniax.gopaint.utils.gui.MenuInventory;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.player.ExportedPlayerBrush;
+import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.inventories.MenuInventory;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -32,82 +32,86 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class InteractListener implements Listener {
 
-    public GoPaintPlugin plugin;
+    public GoPaint plugin;
 
-    public InteractListener(GoPaintPlugin main) {
-        plugin = main;
+    public InteractListener(GoPaint plugin) {
+        this.plugin = plugin;
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onClick(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
+    public void onClick(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
         Location location;
 
-        if (e.getHand() == EquipmentSlot.OFF_HAND) {
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
-        if (!e.getPlayer().hasPermission("gopaint.use")) {
+        if (!event.getPlayer().hasPermission("gopaint.use")) {
             return;
         }
 
-
-        AbstractPlayerBrush playerBrush;
-        /** if (e.getPlayer().getItemInHand().hasItemMeta() &&
-         e.getPlayer().getItemInHand().getItemMeta().hasDisplayName() &&
-         e.getPlayer()
-         .getItemInHand()
-         .getItemMeta()
-         .getDisplayName()
-         .startsWith(" §b♦ ") && e.getPlayer().getItemInHand().getItemMeta().hasLore()) {
-         playerBrush = new ExportedPlayerBrush(player.getItemInHand()
-         .getItemMeta()
-         .getDisplayName(), e.getPlayer().getItemInHand().getItemMeta().getLore());
-         } else */
-
-        if(player.getInventory().getItemInMainHand().getType() == Material.FEATHER) {
-            playerBrush = GoPaintPlugin.getBrushManager().getPlayerBrush(player);
-        } else {
+        AbstractPlayerBrush playerBrush = isExportedBrush(player);
+        if (player.getInventory().getItemInMainHand().getType() == Material.FEATHER) {
+            playerBrush = GoPaint.getBrushManager().getPlayerBrush(player);
+        } else if (playerBrush == null) {
             return;
         }
 
 
-        if(player.isSneaking() && (e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-            Player p = e.getPlayer();
-            PlayerBrush pb = GoPaintPlugin.getBrushManager().getPlayerBrush(p);
+        if (player.isSneaking() && (event.getAction().equals(Action.LEFT_CLICK_AIR) || event
+                .getAction()
+                .equals(Action.LEFT_CLICK_BLOCK))) {
+            Player p = event.getPlayer();
+            PlayerBrush pb = GoPaint.getBrushManager().getPlayerBrush(p);
             p.openInventory(new MenuInventory().createInventory(pb));
             return;
         }
 
-        if(!playerBrush.isEnabled()) {
-            player.sendMessage(GoPaintPlugin
-                    .getSettings()
-                    .getPrefix() + "§cYour brush is disabled, left click to enable the brush.");
+        if (!playerBrush.isEnabled()) {
+            player.sendMessage(GoPaint.getSettings().getPrefix() + "§cYour brush is disabled, left click to enable the brush.");
             return;
         }
 
 
-        if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR)) {
+        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_AIR)) {
             location = player.getTargetBlock(null, 250).getLocation().clone();
         } else {
-            location = e.getClickedBlock().getLocation().clone();
+            location = event.getClickedBlock().getLocation().clone();
         }
 
         if (location.getBlock().getType().equals(Material.AIR)) {
             return;
         }
 
-        if ((!e.getPlayer().hasPermission("gopaint.world.bypass")) && (GoPaintPlugin
-                .getSettings()
-                .getDisabledWorlds()
-                .contains(location.getWorld().getName()))) {
+        if ((!event.getPlayer().hasPermission("gopaint.world.bypass")) && (GoPaint.getSettings().getDisabledWorlds().contains(
+                location.getWorld().getName()))) {
             return;
         }
 
-        playerBrush.getBrush().interact(e, playerBrush, location);
+        playerBrush.getBrush().interact(event, playerBrush, location);
     }
+
+    public AbstractPlayerBrush isExportedBrush(Player player) {
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        if (!itemStack.hasItemMeta()) {
+            return null;
+        }
+        if (!itemStack.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        if (!itemStack.getItemMeta().getDisplayName().startsWith(" §b♦ ")) {
+            return null;
+        }
+        if (!itemStack.getItemMeta().hasLore()) {
+            return null;
+        }
+
+        return new ExportedPlayerBrush(itemStack);
+    }
+
 }

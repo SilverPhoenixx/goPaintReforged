@@ -16,16 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.utils.blocks;
+package net.arcaniax.gopaint.paint.brush;
 
-import org.bukkit.Location;
+import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 
-public class BlockUtils {
+public abstract class ColorBrush extends Brush {
 
-    public static boolean isLoaded(Location l) {
-        int x = l.getBlockX() >> 4;
-        int z = l.getBlockZ() >> 4;
-        return l.getWorld().isChunkLoaded(x, z);
+    public ColorBrush(final BrushSettings[] settings) throws Exception {
+        super(settings);
     }
 
 }

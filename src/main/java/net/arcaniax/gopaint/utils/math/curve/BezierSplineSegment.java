@@ -134,7 +134,7 @@ public class BezierSplineSegment {
         if (d == curveLength) {
             return 1;
         }
-        int i = 0;
+        int i;
         for (i = 0; i < 20; i++) {
             if (d == lengths[i]) {
                 return i / 19;

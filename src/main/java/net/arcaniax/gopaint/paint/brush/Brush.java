@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.brush;
+package net.arcaniax.gopaint.paint.brush;
 
 import com.fastasyncworldedit.core.Fawe;
 import com.fastasyncworldedit.core.queue.implementation.QueueHandler;
@@ -25,14 +25,10 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.world.biome.BiomeTypes;
-import com.sk89q.worldedit.world.block.BlockState;
-import net.arcaniax.gopaint.objects.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.objects.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 public abstract class Brush {
@@ -55,33 +51,32 @@ public abstract class Brush {
 
 
         QueueHandler queue = Fawe.instance().getQueueHandler();
-                    switch (event.getAction()) {
-                        case LEFT_CLICK_AIR:
-                        case LEFT_CLICK_BLOCK: {
-                            queue.async(() -> {
-                                LocalSession localSession =
-                                        WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
-                                EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
-                                playerBrush.getBrush().paintLeft(playerBrush, location, player, editsession);
-                                localSession.remember(editsession);
-                            });
-                            break;
-                        }
-                        case RIGHT_CLICK_AIR:
-                        case RIGHT_CLICK_BLOCK: {
-                            queue.async(() -> {
-                                LocalSession localSession =
-                                        WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
-                                EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
-                                playerBrush.getBrush().paintRight(playerBrush, location, player, editsession);
-                                localSession.remember(editsession);
-                            });
-                            break;
-                        }
-                    }
+        switch (event.getAction()) {
+            case LEFT_CLICK_AIR, LEFT_CLICK_BLOCK -> {
+                queue.async(() -> {
+                    LocalSession localSession =
+                            WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
+                    EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
+                    playerBrush.getBrush().paintLeft(playerBrush, location, player, editsession);
+
+
+                    localSession.remember(editsession);
+                });
+            }
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
+                queue.async(() -> {
+                    LocalSession localSession =
+                            WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
+                    EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
+                    playerBrush.getBrush().paintRight(playerBrush, location, player, editsession);
+                    localSession.remember(editsession);
+                });
+            }
+        }
     }
 
     public boolean isGmask(EditSession session, BlockVector3 v) {
+
         return session.getActor().getSession().getMask() == null || session.getActor().getSession().getMask().test(v);
     }
     public abstract String getName();

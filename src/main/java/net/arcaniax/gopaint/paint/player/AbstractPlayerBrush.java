@@ -16,18 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.player;
+package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
-import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.objects.brush.color.AngleBrush;
-import net.arcaniax.gopaint.objects.brush.Brush;
-import net.arcaniax.gopaint.objects.brush.color.DiscBrush;
-import net.arcaniax.gopaint.objects.brush.color.FractureBrush;
-import net.arcaniax.gopaint.objects.brush.color.GradientBrush;
-import net.arcaniax.gopaint.objects.brush.color.OverlayBrush;
-import net.arcaniax.gopaint.objects.brush.color.SplatterBrush;
-import net.arcaniax.gopaint.objects.brush.color.SprayBrush;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.paint.brush.ColorBrush;
+import net.arcaniax.gopaint.paint.brush.color.AngleBrush;
+import net.arcaniax.gopaint.paint.brush.Brush;
+import net.arcaniax.gopaint.paint.brush.color.DiscBrush;
+import net.arcaniax.gopaint.paint.brush.color.FractureBrush;
+import net.arcaniax.gopaint.paint.brush.color.GradientBrush;
+import net.arcaniax.gopaint.paint.brush.color.OverlayBrush;
+import net.arcaniax.gopaint.paint.brush.color.SplatterBrush;
+import net.arcaniax.gopaint.paint.brush.color.SprayBrush;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -42,7 +43,8 @@ public class AbstractPlayerBrush {
     Boolean surfaceEnabled;
     Boolean maskEnabled;
     Boolean enabled;
-    Boolean biome;
+    Boolean biomeBrush;
+
     int brushSize;
     int chance;
     int thickness;
@@ -51,7 +53,9 @@ public class AbstractPlayerBrush {
     int falloffStrength;
     int mixingStrength;
     double minAngleHeightDifference;
+
     String axis;
+
     Brush brush;
     Material mask;
     List<Material> blocks;
@@ -59,23 +63,23 @@ public class AbstractPlayerBrush {
 
 
     public AbstractPlayerBrush() {
-        surfaceEnabled = GoPaintPlugin.getSettings().isSurfaceModeEnabledDefault();
-        maskEnabled = GoPaintPlugin.getSettings().isMaskEnabledDefault();
-        enabled = GoPaintPlugin.getSettings().isEnabledDefault();
-        biome = GoPaintPlugin.getSettings().isBiomesEnabledDefault();
-        chance = GoPaintPlugin.getSettings().getDefaultChance();
-        thickness = GoPaintPlugin.getSettings().getDefaultThickness();
-        fractureDistance = GoPaintPlugin.getSettings().getDefaultFractureDistance();
-        angleDistance = GoPaintPlugin.getSettings().getDefaultAngleDistance();
-        minAngleHeightDifference = GoPaintPlugin.getSettings().getDefaultAngleHeightDifference();
-        falloffStrength = 50;
-        mixingStrength = 50;
-        axis = "y";
-        brush = GoPaintPlugin.getBrushManager().cycleColor(brush);
-        brushSize = GoPaintPlugin.getSettings().getDefaultSize();
-        blocks = new ArrayList<>();
-        blocks.add(Material.STONE);
-        biomeTypes = new ArrayList<>();
+        this.surfaceEnabled = GoPaint.getSettings().isSurfaceModeEnabledDefault();
+        this.maskEnabled = GoPaint.getSettings().isMaskEnabledDefault();
+        this.enabled = GoPaint.getSettings().isEnabledDefault();
+        this.biomeBrush = GoPaint.getSettings().isBiomesEnabledDefault();
+        this.chance = GoPaint.getSettings().getDefaultChance();
+        this.thickness = GoPaint.getSettings().getDefaultThickness();
+        this.fractureDistance = GoPaint.getSettings().getDefaultFractureDistance();
+        this.angleDistance = GoPaint.getSettings().getDefaultAngleDistance();
+        this.minAngleHeightDifference = GoPaint.getSettings().getDefaultAngleHeightDifference();
+        this.falloffStrength = 50;
+        this.mixingStrength = 50;
+        this.axis = "y";
+        this.brush = GoPaint.getBrushManager().cycleColor((ColorBrush) brush);
+        this.brushSize = GoPaint.getSettings().getDefaultSize();
+        this.blocks = new ArrayList<>();
+        this.blocks.add(Material.STONE);
+        this.biomeTypes = new ArrayList<>();
 
         mask = Material.SPONGE;
     }
@@ -147,7 +151,7 @@ public class AbstractPlayerBrush {
     }
 
     public boolean isBiome() {
-        return biome;
+        return biomeBrush;
     }
 
     public int getBrushSize() {
@@ -184,8 +188,8 @@ public class AbstractPlayerBrush {
     public int getThickness() {
         return thickness;
     }
-    public int changeThickness(int change) {
-        return thickness += change;
+    public void changeThickness(int change) {
+        thickness += change;
     }
 
 
@@ -197,8 +201,10 @@ public class AbstractPlayerBrush {
         this.axis = change;
     }
 
+
     public ItemStack export(ItemStack i) {
         StringBuilder lore = new StringBuilder("___&8Size: " + brushSize);
+
         if (brush instanceof SplatterBrush || brush instanceof SprayBrush) {
             lore.append("___&8Chance: ").append(chance).append("%");
         } else if (brush instanceof OverlayBrush) {
@@ -244,7 +250,7 @@ public class AbstractPlayerBrush {
             lore.append("___&8Surface Mode");
         }
 
-        if(biome) {
+        if(biomeBrush) {
             lore.append("____&8Biome");
         }
         ItemMeta im = i.getItemMeta();
@@ -260,6 +266,7 @@ public class AbstractPlayerBrush {
         im.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         i.setItemMeta(im);
+
         return i;
     }
 

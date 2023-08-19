@@ -30,3 +30,5 @@ toggles:
 
 disabledWorlds:
     - "add disabled worlds here"
+
+prefix: "§bgoPaint > "

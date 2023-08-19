@@ -18,7 +18,7 @@
  */
 package net.arcaniax.gopaint.utils.math;
 
-import net.arcaniax.gopaint.utils.blocks.BlockUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,12 +27,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sphere {
-
-    public static List<Block> getBlocksInRadius(Location middlePoint, double d) {
+    /**
+     * Create a list with blocks in a entire sphere and check if the block is not air
+     * @param middlePoint of the sphere
+     * @param radius of the sphere
+     * @return list with solid blocks in the sphere (no air)
+     */
+    public static List<Block> getBlocksInRadius(Location middlePoint, double radius) {
         List<Block> blocks = new ArrayList<>();
-        for (Block b : getBlocksInRadiusWithAir(middlePoint, d)) {
-            if (BlockUtils.isLoaded(b.getLocation()) && (!b.getType()
-                    .equals(Material.AIR))) {
+        for (Block b : getBlocksInRadiusWithAir(middlePoint, radius)) {
+            if (!b.getType().equals(Material.AIR)) {
                 blocks.add(b);
             }
         }
@@ -40,16 +44,21 @@ public class Sphere {
     }
 
 
-
-    public static List<Block> getBlocksInRadiusWithAir(Location middlePoint, double d) {
+    /**
+     * Create a list with blocks in a entire sphere
+     * @param middlePoint of the sphere
+     * @param radius of the sphere
+     * @return list with blocks in the sphere (with air)
+     */
+    public static List<Block> getBlocksInRadiusWithAir(Location middlePoint, double radius) {
         List<Block> blocks = new ArrayList<>();
-        Location loc1 = middlePoint.clone().add(-d / 2, -d / 2, -d / 2).getBlock().getLocation();
-        Location loc2 = middlePoint.clone().add(+d / 2, +d / 2, +d / 2).getBlock().getLocation();
+        Location loc1 = middlePoint.clone().add(-radius / 2, -radius / 2, -radius / 2).getBlock().getLocation();
+        Location loc2 = middlePoint.clone().add(+radius / 2, +radius / 2, +radius / 2).getBlock().getLocation();
         for (double x = loc1.getX(); x <= loc2.getX(); x++) {
             for (double y = loc1.getY(); y <= loc2.getY(); y++) {
                 for (double z = loc1.getZ(); z <= loc2.getZ(); z++) {
                     Location loc = new Location(loc1.getWorld(), x, y, z);
-                    if (loc.distance(middlePoint) < (d / 2)) {
+                    if (loc.distance(middlePoint) < (radius / 2)) {
                         blocks.add(loc.getBlock());
                     }
                 }

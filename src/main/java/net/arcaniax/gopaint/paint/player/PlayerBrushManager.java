@@ -16,24 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.player;
+package net.arcaniax.gopaint.paint.player;
 
-import net.arcaniax.gopaint.objects.brush.BiomeBrush;
-import net.arcaniax.gopaint.objects.brush.ColorBrush;
-import net.arcaniax.gopaint.objects.brush.biome.SphereBiomeBrush;
-import net.arcaniax.gopaint.objects.brush.color.AngleBrush;
-import net.arcaniax.gopaint.objects.brush.Brush;
-import net.arcaniax.gopaint.objects.brush.color.BucketBrush;
-import net.arcaniax.gopaint.objects.brush.color.DiscBrush;
-import net.arcaniax.gopaint.objects.brush.color.FractureBrush;
-import net.arcaniax.gopaint.objects.brush.color.GradientBrush;
-import net.arcaniax.gopaint.objects.brush.color.OverlayBrush;
-import net.arcaniax.gopaint.objects.brush.color.PaintBrush;
-import net.arcaniax.gopaint.objects.brush.color.RecolorBrush;
-import net.arcaniax.gopaint.objects.brush.color.SphereBrush;
-import net.arcaniax.gopaint.objects.brush.color.SplatterBrush;
-import net.arcaniax.gopaint.objects.brush.color.SprayBrush;
-import org.bukkit.Color;
+import net.arcaniax.gopaint.paint.brush.BiomeBrush;
+import net.arcaniax.gopaint.paint.brush.ColorBrush;
+import net.arcaniax.gopaint.paint.brush.biome.SphereBiomeBrush;
+import net.arcaniax.gopaint.paint.brush.color.AngleBrush;
+import net.arcaniax.gopaint.paint.brush.Brush;
+import net.arcaniax.gopaint.paint.brush.color.BucketBrush;
+import net.arcaniax.gopaint.paint.brush.color.DiscBrush;
+import net.arcaniax.gopaint.paint.brush.color.FractureBrush;
+import net.arcaniax.gopaint.paint.brush.color.GradientBrush;
+import net.arcaniax.gopaint.paint.brush.color.OverlayBrush;
+import net.arcaniax.gopaint.paint.brush.color.PaintBrush;
+import net.arcaniax.gopaint.paint.brush.color.SphereBrush;
+import net.arcaniax.gopaint.paint.brush.color.SplatterBrush;
+import net.arcaniax.gopaint.paint.brush.color.SprayBrush;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -56,21 +54,28 @@ public class PlayerBrushManager {
     }
 
     public void initializeColorBrushes() {
-        colorBrushes.add(new SphereBrush());
-        colorBrushes.add(new SprayBrush());
-        colorBrushes.add(new SplatterBrush());
-        colorBrushes.add(new DiscBrush());
-        colorBrushes.add(new BucketBrush());
-        colorBrushes.add(new AngleBrush());
-        colorBrushes.add(new OverlayBrush());
-        colorBrushes.add(new FractureBrush());
-        colorBrushes.add(new GradientBrush());
-        colorBrushes.add(new PaintBrush());
-        colorBrushes.add(new RecolorBrush());
+        try {
+            colorBrushes.add(new SphereBrush());
+            colorBrushes.add(new SprayBrush());
+            colorBrushes.add(new SplatterBrush());
+            colorBrushes.add(new DiscBrush());
+            colorBrushes.add(new BucketBrush());
+            colorBrushes.add(new AngleBrush());
+            colorBrushes.add(new OverlayBrush());
+            colorBrushes.add(new FractureBrush());
+            colorBrushes.add(new GradientBrush());
+            colorBrushes.add(new PaintBrush());
+        } catch (Exception ignored) {
+
+        }
     }
 
     public void initializeBiomeBrushes() {
-        biomeBrushes.add(new SphereBiomeBrush());
+        try {
+            biomeBrushes.add(new SphereBiomeBrush());
+        } catch (Exception ignored) {
+
+        }
     }
 
 
@@ -84,9 +89,7 @@ public class PlayerBrushManager {
         }
     }
 
-    public ArrayList<String> getColorBrushLore(ArrayList<String> lore, String name) {
-        // &eSphere Brush___&8Spray Brush___&8Splatter Brush___&8Disc Brush___&8Bucket Brush___&8Angle Brush___&8Overlay Brush
-        StringBuilder s = new StringBuilder();
+    public void appendColorBrushLore(ArrayList<String> lore, String name) {
         for (Brush b : colorBrushes) {
             if (b.getName().equalsIgnoreCase(name)) {
                 lore.add("§e" + b.getName());
@@ -94,12 +97,9 @@ public class PlayerBrushManager {
                 lore.add("§8" + b.getName());
             }
         }
-        return lore;
     }
 
-    public ArrayList<String>  getBiomeBrushLore(ArrayList<String> lore, String name) {
-        // &eSphere Brush___&8Spray Brush___&8Splatter Brush___&8Disc Brush___&8Bucket Brush___&8Angle Brush___&8Overlay Brush
-        StringBuilder s = new StringBuilder();
+    public void appendBiomesBrushLore(ArrayList<String> lore, String name) {
         for (Brush b : biomeBrushes) {
             if (b.getName().equalsIgnoreCase(name)) {
                 lore.add("§e" + b.getName());
@@ -107,7 +107,6 @@ public class PlayerBrushManager {
                 lore.add("§8" + b.getName());
             }
         }
-        return lore;
     }
 
     public Brush getColorBrush(String name) {
@@ -127,36 +126,35 @@ public class PlayerBrushManager {
         }
         return biomeBrushes.get(0);
     }
+
     public List<ColorBrush> getColorBrushes() {
         return colorBrushes;
     }
 
-    public List<BiomeBrush> getBiomeBrushes() {
+    public List<BiomeBrush> getBiomesBrushes() {
         return biomeBrushes;
     }
 
-    public void removePlayerBrush(Player p) {
-        if (playerBrushes.containsKey(p.getName())) {
-            playerBrushes.remove(playerBrushes.get(p.getName()));
-        }
+    public void removePlayerBrush(Player player) {
+        playerBrushes.remove(player);
     }
 
-    public Brush cycleColor(Brush b) {
-        if (b == null) {
+    public Brush cycleColor(ColorBrush colorBrush) {
+        if (colorBrush == null) {
             return colorBrushes.get(0);
         }
-        int next = colorBrushes.indexOf(b) + 1;
+        int next = colorBrushes.indexOf(colorBrush) + 1;
         if (next < colorBrushes.size()) {
             return colorBrushes.get(next);
         }
         return colorBrushes.get(0);
     }
 
-    public Brush cycleBackColor(Brush b) {
-        if (b == null) {
+    public Brush cycleBackColor(ColorBrush brush) {
+        if (brush == null) {
             return colorBrushes.get(0);
         }
-        int back = colorBrushes.indexOf(b) - 1;
+        int back = colorBrushes.indexOf(brush) - 1;
         if (back >= 0) {
             return colorBrushes.get(back);
         }
@@ -164,22 +162,22 @@ public class PlayerBrushManager {
     }
 
 
-    public Brush cycleBiome(Brush b) {
-        if (b == null) {
+    public Brush cycleBiomes(BiomeBrush biomeBrush) {
+        if (biomeBrush == null) {
             return biomeBrushes.get(0);
         }
-        int next = biomeBrushes.indexOf(b) + 1;
+        int next = biomeBrushes.indexOf(biomeBrush) + 1;
         if (next < biomeBrushes.size()) {
             return biomeBrushes.get(next);
         }
         return biomeBrushes.get(0);
     }
 
-    public Brush cycleBackBiome(Brush b) {
-        if (b == null) {
+    public Brush cycleBackBiomes(BiomeBrush biomeBrush) {
+        if (biomeBrush == null) {
             return biomeBrushes.get(0);
         }
-        int back = biomeBrushes.indexOf(b) - 1;
+        int back = biomeBrushes.indexOf(biomeBrush) - 1;
         if (back >= 0) {
             return biomeBrushes.get(back);
         }

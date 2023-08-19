@@ -16,22 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.objects.player;
+package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
-import net.arcaniax.gopaint.GoPaintPlugin;
+import net.arcaniax.gopaint.GoPaint;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExportedPlayerBrush extends AbstractPlayerBrush {
 
+    public ExportedPlayerBrush(ItemStack itemStack) {
+        this(itemStack.getItemMeta().getDisplayName(), itemStack.getItemMeta().getLore());
+    }
 
     public ExportedPlayerBrush(String name, List<String> lore) {
-        super();
-        brush = GoPaintPlugin.getBrushManager().getColorBrush(name.replaceAll(" §b♦ ", ""));
+        brush = GoPaint.getBrushManager().getColorBrush(name.replaceAll(" §b♦ ", ""));
         blocks = new ArrayList<>();
         biomeTypes = new ArrayList<>();
         for (String s : lore) {
@@ -65,7 +68,7 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
                 s = s.replaceAll("§8Blocks: ", "");
                 if (!s.equals("none")) {
                     for (String s2 : s.split(" ")) {
-                        String[] type = s2.split("\\:");
+                        String[] type = s2.split(":");
                         BiomeType biomeType = BiomeTypes.get(type[0].toLowerCase());
                         this.biomeTypes.add(biomeType);
                     }
@@ -75,7 +78,7 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
                 s = s.replaceAll("§8Blocks: ", "");
                 if (!s.equals("none")) {
                     for (String s2 : s.split(" ")) {
-                        String[] type = s2.split("\\:");
+                        String[] type = s2.split(":");
                         Material mat = Material.getMaterial(type[0].toUpperCase());
                         this.blocks.add(mat);
                     }
@@ -83,9 +86,8 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
             }
             if (s.startsWith("§8Mask: ")) {
                 s = s.replaceAll("§8Mask: ", "");
-                String[] type = s.split("\\:");
-                Material mat = Material.getMaterial(type[0].toUpperCase());
-                this.mask = mat;
+                String[] type = s.split(":");
+                this.mask = Material.getMaterial(type[0].toUpperCase());
                 this.maskEnabled = true;
             }
             if (s.startsWith("§8Surface Mode")) {
