@@ -29,8 +29,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 public class GoPaintCommand implements CommandExecutor {
 
     private GoPaint plugin;
@@ -55,14 +53,10 @@ public class GoPaintCommand implements CommandExecutor {
 
 
         switch (args.length) {
-            case 0 -> {
-                sendHelpMessage(player, prefix);
-            }
+            case 0 -> sendHelpMessage(player, prefix);
             case 1 -> {
                 switch (args[0].toLowerCase()) {
-                    case "size" -> {
-                        player.sendMessage(prefix + "§c/gp size [number]");
-                    }
+                    case "size" -> player.sendMessage(prefix + "§c/gp size [number]");
                     case "toggle" -> {
                         playerBrush.toggleEnabled();
                         String status = playerBrush.isEnabled() ? "§aEnabled" : "§cDisabled";
@@ -90,9 +84,7 @@ public class GoPaintCommand implements CommandExecutor {
                                         "https://www.spigotmc.org/resources/authors/arcaniax.47444/"
                                 )).create());
                     }
-                    default -> {
-                        sendHelpMessage(player, prefix);
-                    }
+                    default -> sendHelpMessage(player, prefix);
                 }
             }
             case 2 -> {
