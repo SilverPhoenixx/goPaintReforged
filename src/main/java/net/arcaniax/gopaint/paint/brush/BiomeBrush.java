@@ -42,20 +42,6 @@ public abstract class BiomeBrush extends Brush {
                 world.refreshChunk(x, z);
             }
         });
-
-        /*
-        for(Pair<Integer, Integer> chunkCoords : chunks) {
-            Chunk bukkitChunk = player.getWorld().getChunkAt(chunkCoords.getLeft(), chunkCoords.getRight());
-            LevelChunk minecraftChunk =
-                    (LevelChunk) ((CraftChunk) bukkitChunk).getHandle(ChunkStatus.BIOMES);
-
-            ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(minecraftChunk,
-                    minecraftChunk.getLevel().getLightEngine(), null, null);
-
-
-            for(Player worldPlayer : player.getWorld().getPlayers())
-            ((CraftPlayer) worldPlayer).getHandle().connection.send(packet);
-        }*/
 }
     /*
     public void update(Player player, List<Pair<Integer, Integer>> chunks) {
