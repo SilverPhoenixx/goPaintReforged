@@ -1,8 +1,26 @@
-package net.arcaniax.gopaint.utils.gui;
+/*
+ * goPaint is designed to simplify painting inside of Minecraft.
+ * Copyright (C) Arcaniax-Development
+ * Copyright (C) Arcaniax team and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package net.arcaniax.gopaint.inventories;
 
-import net.arcaniax.gopaint.GoPaintPlugin;
-import net.arcaniax.gopaint.objects.brush.Brush;
-import net.arcaniax.gopaint.objects.player.PlayerBrush;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.paint.brush.Brush;
+import net.arcaniax.gopaint.paint.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,6 +36,7 @@ public class BrushesInventory extends GoPaintInventory {
     @Override
     public Inventory createInventory(final PlayerBrush playerBrush) {
         this.inventory = Bukkit.createInventory(this, 27, "§1goPaint Brushes");
+
         // FILLER
         for (int x = 0; x < 27; x++) {
             this.inventory.setItem(
@@ -35,7 +54,7 @@ public class BrushesInventory extends GoPaintInventory {
         mainBrushLore.add("§7Click to select");
         mainBrushLore.add("");
         mainBrushLore.add("");
-        for (Brush brush : GoPaintPlugin.getBrushManager().getColorBrushes()) {
+        for (Brush brush : GoPaint.getBrushManager().getColorBrushes()) {
 
             ArrayList<String> brushLore = new ArrayList<>();
             brushLore.addAll(mainBrushLore);
@@ -57,14 +76,15 @@ public class BrushesInventory extends GoPaintInventory {
     @Override
     public void interactInventory(final InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        PlayerBrush pb = GoPaintPlugin.getBrushManager().getPlayerBrush(player);
-        boolean check = false;
-            if (event.getCurrentItem().getType().equals(Material.getMaterial("SKULL_ITEM"))) {
-                check = true;
-            }
+        PlayerBrush pb = GoPaint.getBrushManager().getPlayerBrush(player);
+
+        if(event.getCurrentItem() == null) return;
+        if(event.getCurrentItem().getItemMeta() == null) return;
+
+        boolean check = event.getCurrentItem().getType().equals(Material.getMaterial("SKULL_ITEM"));
 
         if (check) {
-            pb.setBrush(GoPaintPlugin
+            pb.setBrush(GoPaint
                     .getBrushManager()
                     .getColorBrush(event.getCurrentItem().getItemMeta().getDisplayName().replaceAll("§6", "")));
             player.openInventory(new MenuInventory().createInventory(pb));
