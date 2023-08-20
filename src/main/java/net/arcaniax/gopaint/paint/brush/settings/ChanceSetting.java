@@ -43,7 +43,7 @@ public class ChanceSetting extends AbstractSetting {
 
     public void decrease(PlayerBrush playerBrush, boolean isShifting) {
         if (playerBrush.getChance() > 10) {
-            playerBrush.changeChance(10);
+            playerBrush.changeChance(-10);
         }
         playerBrush.updateInventory();
     }
