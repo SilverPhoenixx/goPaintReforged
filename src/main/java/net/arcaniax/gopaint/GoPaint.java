@@ -18,6 +18,8 @@
  */
 package net.arcaniax.gopaint;
 
+import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import io.papermc.lib.PaperLib;
 import net.arcaniax.gopaint.command.GoPaintCommand;
 import net.arcaniax.gopaint.listeners.PlayerQuitListener;
@@ -28,6 +30,7 @@ import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -93,6 +96,7 @@ public class GoPaint extends JavaPlugin implements Listener {
                 "worldeditImplementation",
                 () -> Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null ? "FastAsyncWorldEdit" : "WorldEdit"
         ));
+
     }
 
     /**

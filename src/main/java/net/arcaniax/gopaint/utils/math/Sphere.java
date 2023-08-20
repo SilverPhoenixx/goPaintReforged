@@ -18,10 +18,10 @@
  */
 package net.arcaniax.gopaint.utils.math;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,18 +29,20 @@ import java.util.List;
 public class Sphere {
     /**
      * Create a list with blocks in a entire sphere and check if the block is not air
-     * @param middlePoint of the sphere
+     * @param middlePoint of the sphere (Cloned)
      * @param radius of the sphere
      * @return list with solid blocks in the sphere (no air)
      */
-    public static List<Block> getBlocksInRadius(Location middlePoint, double radius) {
-        List<Block> blocks = new ArrayList<>();
-        for (Block b : getBlocksInRadiusWithAir(middlePoint, radius)) {
-            if (!b.getType().equals(Material.AIR)) {
-                blocks.add(b);
+    public static List<MutableVector3> getBlocksInRadius(MutableVector3 middlePoint, double radius, EditSession editSession) {
+        List<MutableVector3> locations = new ArrayList<>();
+        for (MutableVector3 currentLocation : getBlocksInRadiusWithAir(middlePoint, radius, editSession)) {
+            BlockState blockState = editSession.getBlock(currentLocation.getBlockX(), currentLocation.getBlockY(),
+                    currentLocation.getBlockZ());
+            if (blockState.getBlockType() != BlockTypes.AIR) {
+                locations.add(currentLocation);
             }
         }
-        return blocks;
+        return locations;
     }
 
 
@@ -50,21 +52,21 @@ public class Sphere {
      * @param radius of the sphere
      * @return list with blocks in the sphere (with air)
      */
-    public static List<Block> getBlocksInRadiusWithAir(Location middlePoint, double radius) {
-        List<Block> blocks = new ArrayList<>();
-        Location loc1 = middlePoint.clone().add(-radius / 2, -radius / 2, -radius / 2).getBlock().getLocation();
-        Location loc2 = middlePoint.clone().add(+radius / 2, +radius / 2, +radius / 2).getBlock().getLocation();
+    public static List<MutableVector3> getBlocksInRadiusWithAir(MutableVector3 middlePoint, double radius, EditSession editSession) {
+        List<MutableVector3> locations = new ArrayList<>();
+        MutableVector3 loc1 = middlePoint.clone().add(-radius / 2, -radius / 2, -radius / 2);
+        MutableVector3 loc2 = middlePoint.clone().add(+radius / 2, +radius / 2, +radius / 2);
         for (double x = loc1.getX(); x <= loc2.getX(); x++) {
             for (double y = loc1.getY(); y <= loc2.getY(); y++) {
                 for (double z = loc1.getZ(); z <= loc2.getZ(); z++) {
-                    Location loc = new Location(loc1.getWorld(), x, y, z);
+                    MutableVector3 loc = new MutableVector3(x, y, z);
                     if (loc.distance(middlePoint) < (radius / 2)) {
-                        blocks.add(loc.getBlock());
+                        locations.add(loc);
                     }
                 }
             }
         }
-        return blocks;
+        return locations;
     }
 
 }

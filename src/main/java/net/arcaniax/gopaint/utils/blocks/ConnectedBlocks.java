@@ -18,32 +18,45 @@
  */
 package net.arcaniax.gopaint.utils.blocks;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockType;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectedBlocks {
 
-    @SuppressWarnings("deprecation")
-    public static List<Block> getConnectedBlocks(Location loc, List<Block> blocks) {
-        Block startBlock = loc.getBlock();
-        Material mat = startBlock.getType();
-        short data = startBlock.getData();
-        List<Block> connectCheckBlocks = new ArrayList<Block>();
-        List<Block> hasBeenChecked = new ArrayList<Block>();
-        List<Block> connected = new ArrayList<Block>();
+    public static List<MutableVector3> getConnectedBlocks(
+            MutableVector3 location,
+            List<MutableVector3> blocks,
+            EditSession editSession
+    ) {
+        MutableVector3 startBlock = location.clone();
+
+        BlockType checkingBlock =
+                editSession.getBlock(startBlock.getBlockX(), startBlock.getBlockY(), startBlock.getBlockZ()).getBlockType();
+
+        List<MutableVector3> connectCheckBlocks = new ArrayList<>();
+        List<MutableVector3> hasBeenChecked = new ArrayList<>();
+        List<MutableVector3> connected = new ArrayList<>();
         int x = 0;
         connectCheckBlocks.add(startBlock);
         connected.add(startBlock);
         while (!connectCheckBlocks.isEmpty() && x < 5000) {
-            Block b = connectCheckBlocks.get(0);
-            for (Block block : getBlocksAround(b)) {
-                if ((!connected.contains(block)) && (!hasBeenChecked.contains(block)) && blocks.contains(block) && block.getType() == mat && block.getData() == data) {
-                    connectCheckBlocks.add(block);
-                    connected.add(block);
+            MutableVector3 b = connectCheckBlocks.get(0);
+
+            for (MutableVector3 blockLocation : getBlocksAround(b)) {
+                BlockState blockState = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
+                        blockLocation.getBlockZ()
+                );
+                if ((!connected.contains(blockLocation))
+                        && (!hasBeenChecked.contains(blockLocation))
+                        && blocks.contains(blockLocation)
+                        && checkingBlock == blockState.getBlockType()) {
+                    connectCheckBlocks.add(blockLocation);
+                    connected.add(blockLocation);
                     x++;
                 }
             }
@@ -53,14 +66,16 @@ public class ConnectedBlocks {
         return connected;
     }
 
-    private static List<Block> getBlocksAround(Block b) {
-        List<Block> blocks = new ArrayList<Block>();
-        blocks.add(b.getLocation().clone().add(-1, 0, 0).getBlock());
-        blocks.add(b.getLocation().clone().add(+1, 0, 0).getBlock());
-        blocks.add(b.getLocation().clone().add(0, -1, 0).getBlock());
-        blocks.add(b.getLocation().clone().add(0, +1, 0).getBlock());
-        blocks.add(b.getLocation().clone().add(0, 0, -1).getBlock());
-        blocks.add(b.getLocation().clone().add(0, 0, +1).getBlock());
+    private static List<MutableVector3> getBlocksAround(MutableVector3 b) {
+        List<MutableVector3> blocks = new ArrayList<>();
+        blocks.add(b.clone().addX(1));
+        blocks.add(b.clone().subtractX(1));
+
+        blocks.add(b.clone().addY(1));
+        blocks.add(b.clone().subtractY(1));
+
+        blocks.add(b.clone().addZ(1));
+        blocks.add(b.clone().subtractZ(1));
         return blocks;
     }
 

@@ -18,73 +18,89 @@
  */
 package net.arcaniax.gopaint.utils.math;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 public class Height {
 
     /**
      * Gets the highest solid block
-     * @param location of checked position
+     *
+     * @param location of checked position (Cloned)
      * @return highest solid position (y coordinate)
      */
-    public static int getHeight(Location location) {
-        if (location.getBlock().getType().equals(Material.AIR)) {
-            while (location.getBlock().getType().equals(Material.AIR)) {
-                location.add(0, -1, 0);
-                if (location.getBlockY() < location.getWorld().getMinHeight()) {
-                    return location.getWorld().getMinHeight();
+    public static int getHeight(MutableVector3 location, EditSession editSession) {
+        BlockState block = editSession.getBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        if (block.getBlockType() == BlockTypes.AIR) {
+            while (block.getBlockType() == BlockTypes.AIR) {
+                location.subtractY(1);
+                if (location.getBlockY() < editSession.getWorld().getMinY()) {
+                    return editSession.getWorld().getMinY();
                 }
+                block = editSession.getBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ());
             }
             return location.getBlockY() + 1;
         } else {
-            while (!(location.getBlock().getType().equals(Material.AIR))) {
-                location.add(0, 1, 0);
-                if (location.getBlockY() > location.getWorld().getMaxHeight()) {
-                    return location.getWorld().getMaxHeight();
+            while (block.getBlockType() != BlockTypes.AIR) {
+                location.addY(1);
+                if (location.getBlockY() > editSession.getWorld().getMaxY()) {
+                    return editSession.getMaxY();
                 }
+                block = editSession.getBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ());
             }
             return location.getBlockY();
         }
     }
 
-    public static double getAverageHeightDiffFracture(Location location, int height, int distance) {
+    public static double getAverageHeightDiffFracture(
+            MutableVector3 location, int height, int distance, EditSession editSession
+    ) {
         double totalHeight = 0;
-        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, -distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, -distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(0, 0, -distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(0, 0, distance))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, 0))) - height;
-        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, 0))) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, -distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, -distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(0, 0, -distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(0, 0, distance), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(-distance, 0, 0), editSession)) - height;
+        totalHeight += Math.abs(getHeight(location.clone().add(distance, 0, 0), editSession)) - height;
         return (totalHeight / (double) 8) / (double) distance;
     }
 
-    public static double getAverageHeightDiffAngle(Location location, int distance) {
+    public static double getAverageHeightDiffAngle(MutableVector3 location, int distance, EditSession editSession) {
         double maxHeightDiff = 0;
         double maxHeightDiff2 = 0;
-        double diff = Math
-                .abs(getHeight(location.clone().add(distance, 0, -distance)) - getHeight(location.clone().add(-distance, 0, distance)));
+
+        double diff = Math.abs(getHeight(location.clone().add(distance, 0, -distance), editSession) - getHeight(location
+                .clone()
+                .add(-distance, 0, distance), editSession));
+
         if (diff >= maxHeightDiff) {
             maxHeightDiff = diff;
             maxHeightDiff2 = maxHeightDiff;
         }
-        diff = Math
-                .abs(getHeight(location.clone().add(distance, 0, distance)) - getHeight(location.clone().add(-distance, 0, -distance)));
+
+        diff = Math.abs(getHeight(location.clone().add(distance, 0, distance), editSession) - getHeight(location
+                .clone()
+                .add(-distance, 0, -distance), editSession));
         if (diff > maxHeightDiff) {
             maxHeightDiff = diff;
             maxHeightDiff2 = maxHeightDiff;
         }
-        diff = Math
-                .abs(getHeight(location.clone().add(distance, 0, 0)) - getHeight(location.clone().add(-distance, 0, 0)));
+
+        diff = Math.abs(getHeight(location.clone().add(distance, 0, 0), editSession) - getHeight(location
+                .clone()
+                .add(-distance, 0, 0), editSession));
         if (diff > maxHeightDiff) {
             maxHeightDiff = diff;
             maxHeightDiff2 = maxHeightDiff;
         }
-        diff = Math
-                .abs(getHeight(location.clone().add(0, 0, -distance)) - getHeight(location.clone().add(0, 0, distance)));
+
+        diff = Math.abs(getHeight(location.clone().add(0, 0, -distance), editSession) - getHeight(location
+                .clone()
+                .add(0, 0, distance), editSession));
         if (diff > maxHeightDiff) {
             maxHeightDiff = diff;
             maxHeightDiff2 = maxHeightDiff;
@@ -94,8 +110,8 @@ public class Height {
         return height / (double) (distance * 2);
     }
 
-    public static boolean isOnTop(Location loc, int thickness) {
-        int height = getHeight(loc.clone());
+    public static boolean isOnTop(MutableVector3 loc, int thickness, EditSession editSession) {
+        int height = getHeight(loc.clone(), editSession);
         return height - loc.getBlockY() <= thickness;
     }
 

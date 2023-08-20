@@ -18,24 +18,26 @@
  */
 package net.arcaniax.gopaint.utils.math.curve;
 
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
 
 public class BezierSplineSegment {
 
     private final double[] lengths;
-    private Location p0, p1, p2, p3;
+    private MutableVector3 p0, p1, p2, p3;
     private float a, b, c;
     private Double xFlat, yFlat, zFlat;
-    private Location r;
+    private MutableVector3 r;
     private double curveLength;
 
-    public BezierSplineSegment(Location p0, Location p3) {
+    public BezierSplineSegment(MutableVector3 p0, MutableVector3 p3) {
         this.p0 = p0;
         this.p3 = p3;
         lengths = new double[20];
-        p1 = new Location(p0.getWorld(), 0, 0, 0);
-        p2 = new Location(p0.getWorld(), 0, 0, 0);
-        r = new Location(p0.getWorld(), 0, 0, 0);
+        p1 = new MutableVector3();
+        p2 = new MutableVector3();
+        r = new MutableVector3();
+
     }
 
     public double getCurveLength() {
@@ -67,10 +69,10 @@ public class BezierSplineSegment {
     }
 
     public void calculateCurveLength() {
-        Location current = p0.clone();
+        MutableVector3 current = p0.clone();
         double step = 0.05;
         lengths[0] = 0;
-        Location temp;
+        MutableVector3 temp;
         for (int i = 1; i < 20; i++) {
             temp = getPoint(i * step);
             lengths[i] = lengths[i - 1] + temp.distance(current);
@@ -146,8 +148,8 @@ public class BezierSplineSegment {
         return (i + (d - lengths[i - 1]) / (lengths[i] - lengths[i - 1])) / 20;
     }
 
-    public Location getPoint(double f) {
-        Location result = new Location(p0.getWorld(), 0, 0, 0);
+    public MutableVector3 getPoint(double f) {
+        MutableVector3 result = new MutableVector3();
         if (xFlat == null) {
             result.setX((Math.pow(1 - f, 3) * p0.getX())
                     + (3 * Math.pow(1 - f, 2) * f * p1.getX())
@@ -176,35 +178,35 @@ public class BezierSplineSegment {
         return p0.distance(p3);
     }
 
-    public Location getP0() {
+    public MutableVector3 getP0() {
         return p0;
     }
 
-    public void setP0(Location p0) {
+    public void setP0(MutableVector3 p0) {
         this.p0 = p0;
     }
 
-    public Location getP1() {
+    public MutableVector3 getP1() {
         return p1;
     }
 
-    public void setP1(Location p1) {
+    public void setP1(MutableVector3 p1) {
         this.p1 = p1;
     }
 
-    public Location getP2() {
+    public MutableVector3 getP2() {
         return p2;
     }
 
-    public void setP2(Location p2) {
+    public void setP2(MutableVector3 p2) {
         this.p2 = p2;
     }
 
-    public Location getP3() {
+    public MutableVector3 getP3() {
         return p3;
     }
 
-    public void setP3(Location p3) {
+    public void setP3(MutableVector3 p3) {
         this.p3 = p3;
     }
 
@@ -232,11 +234,11 @@ public class BezierSplineSegment {
         this.c = c;
     }
 
-    public Location getR() {
+    public MutableVector3 getR() {
         return r;
     }
 
-    public void setR(Location r) {
+    public void setR(MutableVector3 r) {
         this.r = r;
     }
 

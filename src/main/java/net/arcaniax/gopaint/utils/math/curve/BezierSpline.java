@@ -19,19 +19,18 @@
 package net.arcaniax.gopaint.utils.math.curve;
 
 
-import org.bukkit.Location;
-import org.bukkit.World;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.util.Vector;
 
 import java.util.LinkedList;
 
 public class BezierSpline {
 
-    private final LinkedList<Location> knotsList;
-    private Location[] knots;
+    private final LinkedList<MutableVector3> knotsList;
+    private MutableVector3[] knots;
     private BezierSplineSegment[] segments;
     private double length;
-    private Location anchorPoint;
+    private MutableVector3 anchorPoint;
 
     public BezierSpline() {
         knotsList = new LinkedList<>();
@@ -39,13 +38,13 @@ public class BezierSpline {
         length = 0;
     }
 
-    public BezierSpline(LinkedList<Location> knotsList) {
+    public BezierSpline(LinkedList<MutableVector3> knotsList) {
         this.knotsList = knotsList;
         recalc();
     }
 
     private void recalc() {
-        knots = knotsList.toArray(new Location[0]);
+        knots = knotsList.toArray(new MutableVector3[0]);
         segments = new BezierSplineSegment[knots.length - 1];
         for (int i = 0; i < knots.length - 1; i++) {
             segments[i] = new BezierSplineSegment(knots[i], knots[i + 1]);
@@ -54,7 +53,7 @@ public class BezierSpline {
         calculateLength();
     }
 
-    public void addKnot(Location l) {
+    public void addKnot(MutableVector3 l) {
         knotsList.add(l);
         recalc();
     }
@@ -116,7 +115,7 @@ public class BezierSpline {
         return i + segments[i].getT(blocks - current);
     }
 
-    public Location getPoint(double f) {
+    public MutableVector3 getPoint(double f) {
         if (f >= segments.length) {
             return getPoint(segments.length - 1, 1);
         } else {
@@ -124,10 +123,10 @@ public class BezierSpline {
         }
     }
 
-    public Location getPoint(int n, double f) {
+    public MutableVector3 getPoint(int n, double f) {
         assert (n < segments.length);
         assert (0 <= f && f <= 1);
-        Location result = new Location(knots[0].getWorld(), 0, 0, 0);
+        MutableVector3 result;
         BezierSplineSegment segment = segments[n];
         result = segment.getPoint(f);
         return result;
@@ -166,19 +165,19 @@ public class BezierSpline {
         xflat = knots[0].getX();
         yflat = knots[0].getY();
         zflat = knots[0].getZ();
-        for (Location l : knots) {
+        for (MutableVector3 l : knots) {
             if (l.getBlockX() != xflat) {
                 xflat = null;
                 break;
             }
         }
-        for (Location l : knots) {
+        for (MutableVector3 l : knots) {
             if (l.getBlockY() != yflat) {
                 yflat = null;
                 break;
             }
         }
-        for (Location l : knots) {
+        for (MutableVector3 l : knots) {
             if (l.getBlockZ() != zflat) {
                 zflat = null;
                 break;
@@ -186,7 +185,7 @@ public class BezierSpline {
         }
 
         if (segments.length == 1) {
-            Location midpoint = new Location(segments[0].getP0().getWorld(), 0, 0, 0);
+            MutableVector3 midpoint = new MutableVector3();
             midpoint
                     .setX((segments[0].getP0().getX() + segments[0].getP3().getX()) / 2);
             midpoint
@@ -287,15 +286,15 @@ public class BezierSpline {
         }
     }
 
-    public void shift(Vector v) {
-        for (Location l : knotsList) {
+    public void shift(MutableVector3 v) {
+        for (MutableVector3 l : knotsList) {
             l.add(v);
         }
         recalc();
     }
 
     public void scale(Double d) {
-        for (Location l : knotsList) {
+        for (MutableVector3 l : knotsList) {
             l.subtract(anchorPoint);
             l.multiply(d);
             l.add(anchorPoint);
@@ -304,7 +303,7 @@ public class BezierSpline {
     }
 
     public void scale(Vector v) {
-        for (Location l : knotsList) {
+        for (MutableVector3 l : knotsList) {
             l.subtract(anchorPoint);
             l.setX(l.getX() * v.getX());
             l.setY(l.getY() * v.getY());
@@ -312,16 +311,6 @@ public class BezierSpline {
             l.add(anchorPoint);
         }
         recalc();
-    }
-
-    public World getWorld() {
-        if (knots == null) {
-            return null;
-        }
-        if (knots.length == 0) {
-            return null;
-        }
-        return knots[0].getWorld();
     }
 
     @Override
