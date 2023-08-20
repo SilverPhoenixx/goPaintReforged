@@ -19,16 +19,13 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,43 +34,42 @@ import java.util.Random;
 public class SplatterBrush extends ColorBrush {
 
     public SplatterBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.FALLOFF_STRENGTH
         });
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
         int size = playerBrush.getBrushSize();
         int falloff = playerBrush.getFalloffStrength();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+        List<BlockType> pbBlocks = playerBrush.getBlocks();
         if (pbBlocks.isEmpty()) {
             return;
         }
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    Random r = new Random();
-                    double rate = (b
-                            .getLocation()
-                            .distance(loc) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) / (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
-                    if (!(r.nextDouble() <= rate)) {
-                        int random = r.nextInt(pbBlocks.size());
-                        Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                        if (isGmask(session, vector3.toBlockPoint())) {
-                            try {
-                                session.setBlock(
-                                        b.getX(), b.getY(), b.getZ(),
-                                        BukkitAdapter.asBlockType(playerBrush.getBlocks().get(random)).getDefaultState()
-                                );
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
-                }
+
+        MutableVector3 clickedVector = new MutableVector3(clickedPosition);
+
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, size, editSession);
+        for (MutableVector3 blockLocation : blocks) {
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+            Random r = new Random();
+            double rate = (blockLocation
+                    .distance(clickedVector) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) / (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
+            if (r.nextDouble() <= rate) {
+                continue;
+            }
+            int random = r.nextInt(pbBlocks.size());
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+            try {
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        playerBrush.getBlocks().get(random).getDefaultState()
+                );
+            } catch (Exception ignored) {
             }
         }
     }
@@ -85,7 +81,7 @@ public class SplatterBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7More chance when closer", "§7to the clicked point", "§7and configurable chance"};
+        return new String[]{"§7More chance when closer", "§7to the clicked point", "§7and configurable chance"};
     }
 
     @Override

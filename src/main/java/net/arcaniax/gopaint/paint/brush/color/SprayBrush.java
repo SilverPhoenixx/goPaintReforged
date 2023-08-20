@@ -19,16 +19,13 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,7 +34,7 @@ import java.util.Random;
 public class SprayBrush extends ColorBrush {
 
     public SprayBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.CHANCE,
                 BrushSettings.FALLOFF_STRENGTH
@@ -45,35 +42,35 @@ public class SprayBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
         int size = playerBrush.getBrushSize();
-        List<Material> pbBlocks = playerBrush.getBlocks();
-        if (pbBlocks.isEmpty()) return;
-
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    Random r = new Random();
-                    if (r.nextInt(100) < playerBrush.getChance()) {
-                        int random = r.nextInt(pbBlocks.size());
-
-                        Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                        if (isGmask(session, vector3.toBlockPoint())) {
-                            try {
-                                    session.setBlock(
-                                            b.getX(), b.getY(), b.getZ(),
-                                            BukkitAdapter.asBlockType(pbBlocks.get(random)).getDefaultState()
-                                    );
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
-                }
-            }
-
+        List<BlockType> pbBlocks = playerBrush.getBlocks();
+        if (pbBlocks.isEmpty()) {
+            return;
         }
+
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), size, editSession);
+        for (MutableVector3 blockLocation : blocks) {
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+
+            Random r = new Random();
+            if (!(r.nextInt(100) < playerBrush.getChance())) {
+                continue;
+            }
+            int random = r.nextInt(pbBlocks.size());
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+            try {
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        pbBlocks.get(random).getDefaultState()
+                );
+            } catch (Exception ignored) {
+            }
+        }
+
     }
 
     @Override
@@ -83,11 +80,12 @@ public class SprayBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Configurable random chance brush"};
+        return new String[]{"§7Configurable random chance brush"};
     }
 
     @Override
     public String getSkin() {
         return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjg4MGY3NjVlYTgwZGVlMzcwODJkY2RmZDk4MTJlZTM2ZmRhODg0ODY5MmE4NDFiZWMxYmJkOWVkNTFiYTIyIn19fQ==";
     }
+
 }

@@ -22,6 +22,7 @@ import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+
 import java.util.List;
 
 public abstract class BiomeBrush extends Brush {
@@ -37,12 +38,12 @@ public abstract class BiomeBrush extends Brush {
             int x = chunk.getLeft();
             int z = chunk.getRight();
 
-        // Not a good option but it works
-            if(world.isChunkLoaded(x, z)) {
+            // Not a good option but it works
+            if (world.isChunkLoaded(x, z)) {
                 world.refreshChunk(x, z);
             }
         });
-}
+    }
     /*
     public void update(Player player, List<Pair<Integer, Integer>> chunks) {
         World world = player.getWorld();
@@ -60,7 +61,4 @@ public abstract class BiomeBrush extends Brush {
             ((CraftPlayer) worldPlayer).getHandle().connection.send(packet);
         }
     }*/
-
-
-
 }

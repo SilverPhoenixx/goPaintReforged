@@ -19,17 +19,14 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Height;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -38,7 +35,7 @@ import java.util.Random;
 public class AngleBrush extends ColorBrush {
 
     public AngleBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.ANGLE_DISTANCE,
                 BrushSettings.ANGLE_HEIGHT
@@ -52,7 +49,7 @@ public class AngleBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Only works on cliffs"};
+        return new String[]{"§7Only works on cliffs"};
     }
 
     @Override
@@ -61,37 +58,49 @@ public class AngleBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
-        int size = playerBrush.getBrushSize();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
+        int brushSize = playerBrush.getBrushSize();
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
 
-        if(pbBlocks.isEmpty()) return;
+        if (brushBlocks.isEmpty()) {
+            return;
+        }
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    if (!(Height.getAverageHeightDiffAngle(b.getLocation(), 1) >= 0.1 &&
-                            Height.getAverageHeightDiffAngle(
-                                    b.getLocation(),
-                                    playerBrush.getAngleDistance()
-                            ) >= Math.tan(Math.toRadians(playerBrush.getMinHeightDifference())))) {
-                        Random r = new Random();
-                        int random = r.nextInt(pbBlocks.size());
-                        Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                        if (isGmask(session, vector3.toBlockPoint())) {
-                            try {
-                                session.setBlock(
-                                        b.getX(), b.getY(), b.getZ(),
-                                        BukkitAdapter.asBlockType(pbBlocks.get(random)).getDefaultState()
-                                );
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
-                }
+        List<MutableVector3> affectedBlocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
+        for (MutableVector3 blockLocation : affectedBlocks) {
+            // Skip if surface mode is enabled
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+
+            double blockHeightDifference = Height.getAverageHeightDiffAngle(blockLocation, 1, editSession);
+            double maxAllowedAngle = Math.tan(Math.toRadians(playerBrush.getMinHeightDifference()));
+            double currentAngle = Height.getAverageHeightDiffAngle(blockLocation, playerBrush.getAngleDistance(), editSession);
+
+            // Skip if the angle condition is not met
+            if (blockHeightDifference >= 0.1 && currentAngle >= maxAllowedAngle) {
+                continue;
+            }
+
+            // Randomly select a block type
+            Random random = new Random();
+            int randomIndex = random.nextInt(brushBlocks.size());
+
+            // Check if it's allowed to replace the block (isGmask method)
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+            try {
+                // Set the block to a randomly selected block type
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        brushBlocks.get(randomIndex).getDefaultState()
+                );
+            } catch (Exception ignored) {
+                // Handle any exceptions that may occur during block placement
             }
         }
     }
+
 }
+
+

@@ -19,21 +19,18 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.world.block.BlockTypes;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.paint.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
 import net.arcaniax.gopaint.utils.math.curve.BezierSpline;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,67 +39,92 @@ import java.util.Random;
 public class PaintBrush extends ColorBrush {
 
     public PaintBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.FALLOFF_STRENGTH
         });
     }
 
-    private static final HashMap<String, List<Location>> selectedPoints;
+    private static final HashMap<String, List<MutableVector3>> selectedPoints;
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
         final String prefix = GoPaint.getSettings().getPrefix();
-        if (!PaintBrush.selectedPoints.containsKey(p.getName())) {
-            final List<Location> locs = new ArrayList<Location>();
-            locs.add(loc);
-            PaintBrush.selectedPoints.put(p.getName(), locs);
-            p.sendMessage(prefix + " Paint brush point #1 set.");
+
+        if (!PaintBrush.selectedPoints.containsKey(player.getName())) {
+            final List<MutableVector3> locs = new LinkedList<>();
+            locs.add(new MutableVector3(clickedPosition));
+            PaintBrush.selectedPoints.put(player.getName(), locs);
+            player.sendMessage(prefix + " Paint brush point #1 set.");
+            return;
         }
-        else {
-            if (!p.isSneaking()) {
-                final List<Location> locs = PaintBrush.selectedPoints.get(p.getName());
-                locs.add(loc);
-                PaintBrush.selectedPoints.put(p.getName(), locs);
-                p.sendMessage(prefix + " Paint brush point #" + locs.size() + " set.");
-                return;
+
+        if (!player.isSneaking()) {
+            final List<MutableVector3> locs = PaintBrush.selectedPoints.get(player.getName());
+            locs.add(new MutableVector3(clickedPosition));
+            PaintBrush.selectedPoints.put(player.getName(), locs);
+            player.sendMessage(prefix + " Paint brush point #" + locs.size() + " set.");
+            return;
+        }
+
+        final PlayerBrush pb = GoPaint.getBrushManager().getPlayerBrush(player);
+        final List<BlockType> pbBlocks = pb.getBlocks();
+
+        if (pbBlocks.isEmpty()) {
+            return;
+        }
+
+        final List<MutableVector3> locs = PaintBrush.selectedPoints.get(player.getName());
+        locs.add(new MutableVector3(clickedPosition));
+        PaintBrush.selectedPoints.remove(player.getName());
+
+        final int size = pb.getBrushSize();
+        final int falloff = pb.getFalloffStrength();
+
+        final List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(locs.get(0), size, editSession);
+        for (final MutableVector3 blockLocation : blocks) {
+            final Random r = new Random();
+            final int random = r.nextInt(pbBlocks.size());
+            final double rate = (blockLocation
+                    .distance(locs.get(0)) - size / 2.0 * ((100.0 - falloff) / 100.0)) / (size / 2.0 - size / 2.0 * ((100.0 - falloff) / 100.0));
+            if (r.nextDouble() < rate) {
+                continue;
             }
-            final List<Location> locs = PaintBrush.selectedPoints.get(p.getName());
-            locs.add(loc);
-            PaintBrush.selectedPoints.remove(p.getName());
-            final PlayerBrush pb = GoPaint.getBrushManager().getPlayerBrush(p);
-            final int size = pb.getBrushSize();
-            final int falloff = pb.getFalloffStrength();
-            final List<Material> pbBlocks = pb.getBlocks();
-            if (pbBlocks.isEmpty()) {
-                return;
-            }
-            final List<Block> blocks = Sphere.getBlocksInRadiusWithAir(locs.get(0), size);
-            for (final Block b : blocks) {
-                final Random r = new Random();
-                final int random = r.nextInt(pbBlocks.size());
-                final double rate = (b.getLocation().distance((Location)locs.get(0)) - size / 2.0 * ((100.0 - falloff) / 100.0)) / (size / 2.0 - size / 2.0 * ((100.0 - falloff) / 100.0));
-                if (r.nextDouble() > rate) {
-                    final LinkedList<Location> newCurve = new LinkedList<Location>();
-                    int amount = 0;
-                    for (final Location l : locs) {
-                        if (amount == 0) {
-                            newCurve.add(b.getLocation());
-                        }
-                        else {
-                            newCurve.add(b.getLocation().clone().add(l.getX() - locs.get(0).getX(), l.getY() - locs.get(0).getY(), l.getZ() - locs.get(0).getZ()));
-                        }
-                        ++amount;
-                    }
-                    final BezierSpline bs = new BezierSpline(newCurve);
-                    final double length = bs.getCurveLength();
-                    for (int maxCount = (int)(length * 2.5) + 1, y = 0; y <= maxCount; ++y) {
-                        final Location location = bs.getPoint(y / (double)maxCount * (locs.size() - 1)).getBlock().getLocation();
-                        if (!location.getBlock().getType().equals(Material.AIR) && (!pb.isSurfaceModeEnabled() || Surface.isOnSurface(location, p.getLocation())) && (!pb.isMaskEnabled() || (location.getBlock().getType() == pb.getMask()))) {
-                           session.setBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ(), BlockTypes.get(pb.getBlocks().get(random).getKey().getKey()));
-                        }
-                    }
+
+            final LinkedList<MutableVector3> newCurve = new LinkedList<>();
+            int amount = 0;
+            for (final MutableVector3 l : locs) {
+                if (amount == 0) {
+                    newCurve.add(blockLocation.clone());
+                    amount++;
+                    continue;
                 }
+
+                MutableVector3 newLocation = blockLocation.clone().add(
+                        l.getX() - locs.get(0).getX(),
+                        l.getY() - locs.get(0).getY(),
+                        l.getZ() - locs.get(0).getZ()
+                );
+
+                newCurve.add(newLocation);
+                ++amount;
+            }
+
+            final BezierSpline bs = new BezierSpline(newCurve);
+            final double length = bs.getCurveLength();
+            for (int maxCount = (int) (length * 2.5) + 1, y = 0; y <= maxCount; ++y) {
+                final MutableVector3 currentLocation = bs.getPoint(y / (double) maxCount * (locs.size() - 1));
+
+                if (!canPlaceWithAir(editSession, currentLocation, playerBrush, clickedPosition)) {
+                    continue;
+                }
+
+                editSession.setBlock(
+                        currentLocation.getBlockX(),
+                        currentLocation.getBlockY(),
+                        currentLocation.getBlockZ(),
+                        pb.getBlocks().get(random)
+                );
             }
         }
     }
@@ -115,7 +137,7 @@ public class PaintBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Paints strokes", "§7hold shift to end"};
+        return new String[]{"§7Paints strokes", "§7hold shift to end"};
     }
 
     @Override

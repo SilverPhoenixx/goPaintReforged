@@ -18,12 +18,56 @@
  */
 package net.arcaniax.gopaint.paint.brush;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
+import org.bukkit.Location;
 
 public abstract class ColorBrush extends Brush {
 
     public ColorBrush(final BrushSettings[] settings) throws Exception {
         super(settings);
+    }
+
+    public boolean canPlace(EditSession editSession, MutableVector3 blockLocation, AbstractPlayerBrush playerBrush, Location clickedPosition) {
+        BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
+                blockLocation.getBlockZ()
+        );
+
+        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
+                new MutableVector3(clickedPosition), editSession
+        )) {
+            return false; // Skip blocks that don't meet surface mode condition
+        }
+
+        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+            return false; // Skip blocks that don't meet the mask condition
+        }
+        return true;
+    }
+
+    public boolean canPlaceWithAir(EditSession editSession, MutableVector3 blockLocation, AbstractPlayerBrush playerBrush,
+                             Location clickedPosition) {
+        BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
+                blockLocation.getBlockZ()
+        );
+
+        if(block.isAir()) return false;
+
+        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
+                new MutableVector3(clickedPosition), editSession
+        )) {
+            return false; // Skip blocks that don't meet surface mode condition
+        }
+
+        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+            return false; // Skip blocks that don't meet the mask condition
+        }
+        return true;
     }
 
 }

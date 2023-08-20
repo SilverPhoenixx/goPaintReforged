@@ -19,16 +19,13 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,7 +34,7 @@ import java.util.Random;
 public class DiscBrush extends ColorBrush {
 
     public DiscBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.AXIS
         });
@@ -51,7 +48,7 @@ public class DiscBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Paints blocks in the", "§7same selected axis", "§7from the block you clicked"};
+        return new String[]{"§7Paints blocks in the", "§7same selected axis", "§7from the block you clicked"};
     }
 
     @Override
@@ -60,37 +57,42 @@ public class DiscBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
-        int size = playerBrush.getBrushSize();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
+        int brushSize = playerBrush.getBrushSize();
+        List<BlockType> brushMaterials = playerBrush.getBlocks();
 
-        if(pbBlocks.isEmpty()) return;
+        if (brushMaterials.isEmpty()) {
+            return;
+        }
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        for (Block b : blocks) {
-            if ((playerBrush.getAxis().equals("y") && b.getLocation().getBlockY() == loc.getBlockY()) || (playerBrush.getAxis().equals("x") && b
-                    .getLocation()
-                    .getBlockX() == loc.getBlockX()) || (playerBrush.getAxis().equals("z") && b
-                    .getLocation()
-                    .getBlockZ() == loc.getBlockZ())) {
-                if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                    if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                            .getMask()))) {
-                        Random r = new Random();
-                        int random = r.nextInt(pbBlocks.size());
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
+        for (MutableVector3 blockLocation : blocks) {
 
-                        Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                        if (isGmask(session, vector3.toBlockPoint())) {
-                            try {
-                                session.setBlock(
-                                        b.getX(), b.getY(), b.getZ(),
-                                        BukkitAdapter.asBlockType(playerBrush.getBlocks().get(random)).getDefaultState()
-                                );
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
-                }
+
+            if (!((playerBrush.getAxis().equals("y") && blockLocation.getBlockY() == clickedPosition.getBlockY())
+                    || (playerBrush.getAxis().equals("x") && blockLocation.getBlockX() == clickedPosition.getBlockX())
+                    || (playerBrush.getAxis().equals("z") && blockLocation.getBlockZ() == clickedPosition.getBlockZ()))) {
+                continue; // Skip blocks that don't match the axis condition
+            }
+
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) {
+                continue;
+            }
+
+            Random random = new Random();
+            int randomIndex = random.nextInt(brushMaterials.size());
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+            try {
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        brushMaterials.get(randomIndex).getDefaultState()
+                );
+            } catch (Exception ignored) {
+                // Handle any exceptions that may occur during block placement
             }
         }
     }

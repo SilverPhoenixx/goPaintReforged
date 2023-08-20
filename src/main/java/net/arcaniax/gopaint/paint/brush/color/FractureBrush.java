@@ -18,18 +18,15 @@
  */
 package net.arcaniax.gopaint.paint.brush.color;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.EditSession;;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Height;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -38,7 +35,7 @@ import java.util.Random;
 public class FractureBrush extends ColorBrush {
 
     public FractureBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.FRACTURE
         });
@@ -51,7 +48,7 @@ public class FractureBrush extends ColorBrush {
 
     @Override
     public String[] getDescription() {
-        return new String[] {"§7Places blocks in cracks/fisures"};
+        return new String[]{"§7Places blocks in cracks/fisures"};
     }
 
     @Override
@@ -60,41 +57,52 @@ public class FractureBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
         int size = playerBrush.getBrushSize();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+        List<BlockType> brushMaterials = playerBrush.getBlocks();
 
-        if(pbBlocks.isEmpty()) return;
+        if (brushMaterials.isEmpty()) {
+            return;
+        }
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    if (Height.getAverageHeightDiffFracture(b.getLocation(), Height.getHeight(b.getLocation()), 1) >= 0.1) {
-                        if (Height.getAverageHeightDiffFracture(
-                                b.getLocation(),
-                                Height.getHeight(b.getLocation()),
-                                playerBrush.getFractureDistance()
-                        ) >= 0.1) {
-                            Random r = new Random();
-                            int random = r.nextInt(pbBlocks.size());
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), size, editSession);
 
-                            Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                            if (isGmask(session, vector3.toBlockPoint())) {
-                                try {
-                                    session.setBlock(
-                                            b.getX(), b.getY(), b.getZ(),
-                                            BukkitAdapter.asBlockType(pbBlocks.get(random)).getDefaultState()
-                                    );
-                                } catch (Exception ignored) {
-                                }
-                            }
-                        }
-                    }
-                }
+        for (MutableVector3 blockLocation : blocks) {
+
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+
+            double blockHeightDiffFracture = Height.getAverageHeightDiffFracture(
+                    blockLocation,
+                    Height.getHeight(blockLocation.clone(), editSession),
+                    1,
+                    editSession
+            );
+
+            double fractureDistanceHeightDiff = Height.getAverageHeightDiffFracture(
+                    blockLocation,
+                    Height.getHeight(blockLocation.clone(), editSession),
+                    playerBrush.getFractureDistance(),
+                    editSession
+            );
+
+            if (!(blockHeightDiffFracture >= 0.1 && fractureDistanceHeightDiff >= 0.1)) {
+                continue;
+            }
+
+            Random random = new Random();
+            int randomIndex = random.nextInt(brushMaterials.size());
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+            try {
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        brushMaterials.get(randomIndex).getDefaultState()
+                );
+            } catch (Exception ignored) {
+                // Handle any exceptions that may occur during block placement
             }
         }
     }
-
 }

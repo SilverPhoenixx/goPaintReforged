@@ -19,18 +19,16 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.blocks.ConnectedBlocks;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -60,34 +58,44 @@ public class BucketBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
-        int size = playerBrush.getBrushSize();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
+        int brushSize = playerBrush.getBrushSize();
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
 
-        if(pbBlocks.isEmpty()) return;
+        if (brushBlocks.isEmpty()) {
+            return;
+        }
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        List<Block> connectedBlocks = ConnectedBlocks.getConnectedBlocks(loc, blocks);
-        for (Block b : connectedBlocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    Random r = new Random();
-                    int random = r.nextInt(pbBlocks.size());
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
+        List<MutableVector3> connectedBlocks = ConnectedBlocks.getConnectedBlocks(new MutableVector3(clickedPosition), blocks, editSession);
 
-                    Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                    if (isGmask(session, vector3.toBlockPoint())) {
-                        try {
-                            session.setBlock(
-                                    b.getX(), b.getY(), b.getZ(),
-                                    BukkitAdapter.asBlockType(pbBlocks.get(random)).getDefaultState().withProperties(BlockState.get(b.getState().getBlockData().getAsString()))
-                            );
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
+        Location playerLocation = player.getLocation();
+        for (MutableVector3 blockLocation : connectedBlocks) {
+            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(), new MutableVector3(playerLocation), editSession)) {
+                continue; // Skip if surface mode is enabled and the block is not on the surface
             }
 
+            BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ());
+
+            if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+                continue; // Skip if masking is enabled and the block type doesn't match the mask
+            }
+
+            if (isGmask(editSession, blockLocation.toBlockPoint())) {
+                Random random = new Random();
+                int randomIndex = random.nextInt(brushBlocks.size());
+
+                try {
+                    // Set the block to a randomly selected block type, preserving its properties
+                    editSession.setBlock(
+                            blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                            brushBlocks.get(randomIndex).getDefaultState().withProperties(block)
+                    );
+                } catch (Exception ignored) {
+                    // Handle any exceptions that may occur during block placement
+                }
+            }
         }
     }
+
 }

@@ -19,17 +19,16 @@
 package net.arcaniax.gopaint.paint.brush.biome;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.math.BlockVector3Imp;
-import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.block.BlockState;
 import net.arcaniax.gopaint.paint.brush.BiomeBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -39,57 +38,76 @@ import java.util.Random;
 public class SphereBiomeBrush extends BiomeBrush {
 
     public SphereBiomeBrush() throws Exception {
-        super(new BrushSettings[]{
-                BrushSettings.SIZE
-        });
+        super(new BrushSettings[]{BrushSettings.SIZE});
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedLocation, Player player, EditSession editSession) {
         int size = playerBrush.getBrushSize();
         List<BiomeType> pbBlocks = playerBrush.getBiomeTypes();
         if (pbBlocks.isEmpty()) {
             return;
         }
 
-        List<Block> blocks = Sphere.getBlocksInRadiusWithAir(loc, size);
+        List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(new MutableVector3(
+                clickedLocation.getX(),
+                clickedLocation.getY(),
+                clickedLocation.getZ()
+        ), size, editSession);
+
         List<Pair<Integer, Integer>> chunks = new ArrayList<>();
 
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    Random r = new Random();
-                    int random = r.nextInt(pbBlocks.size());
-                    Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                    if (isGmask(session, vector3.toBlockPoint())) {
-                        try {
-                            int chunkX = b.getChunk().getX();
-                            int chunkZ = b.getChunk().getZ();
-                            Pair<Integer, Integer> chunkCoords = Pair.of(chunkX, chunkZ);
+        Location playerLocation = player.getLocation();
+        for (MutableVector3 blockLocation : blocks) {
+            if (playerBrush.isSurfaceModeEnabled()) {
+                continue;
+            }
 
-                            if (!chunks.contains(chunkCoords)) {
-                                chunks.add(chunkCoords);
-                            }
+            if (!Surface.isOnSurface(blockLocation.clone(), new MutableVector3(playerLocation), editSession)) {
+                continue;
+            }
 
-                            session.setBiome(
-                                    BlockVector3Imp.at(b.getX(), b.getY(), b.getZ()),
-                                    pbBlocks.get(random)
-                            );
+            BlockState block = editSession.getBlock(
+                    blockLocation.getBlockX(),
+                    blockLocation.getBlockY(),
+                    blockLocation.getBlockZ()
+            );
 
+            if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+                continue;
+            }
 
-                        } catch (Exception ignored) {
-                        }
-                    }
+            Random r = new Random();
+            int random = r.nextInt(pbBlocks.size());
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
 
+            try {
+                int chunkX = blockLocation.getChunkX();
+                int chunkZ = blockLocation.getChunkZ();
+                Pair<Integer, Integer> chunkCoords = Pair.of(chunkX, chunkZ);
+
+                if (!chunks.contains(chunkCoords)) {
+                    chunks.add(chunkCoords);
                 }
+
+                editSession.setBiome(
+                        blockLocation.getBlockX(),
+                        blockLocation.getBlockY(),
+                        blockLocation.getBlockZ(),
+                        pbBlocks.get(random)
+                );
+
+
+            } catch (Exception ignored) {
             }
 
         }
 
-        session.commit();
+        editSession.commit();
 
-        update(p, chunks);
+        update(player, chunks);
     }
 
     @Override

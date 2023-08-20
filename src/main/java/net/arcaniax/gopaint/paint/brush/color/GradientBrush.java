@@ -19,16 +19,13 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.Vector3;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
-import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,7 +34,7 @@ import java.util.Random;
 public class GradientBrush extends ColorBrush {
 
     public GradientBrush() throws Exception {
-        super(new BrushSettings[] {
+        super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.FALLOFF_STRENGTH,
                 BrushSettings.MIXING
@@ -60,50 +57,51 @@ public class GradientBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
+
+        MutableVector3 mutableLocation = new MutableVector3(clickedPosition);
+
         int size = playerBrush.getBrushSize();
         int falloff = playerBrush.getFalloffStrength();
         int mixing = playerBrush.getMixingStrength();
-        List<Material> pbBlocks = playerBrush.getBlocks();
+        List<BlockType> pbBlocks = playerBrush.getBlocks();
 
-        if(pbBlocks.isEmpty()) return;
+        if (pbBlocks.isEmpty()) {
+            return;
+        }
 
-        List<Block> blocks = Sphere.getBlocksInRadius(loc, size);
-        double y = loc.getBlockY() - ((double) size / 2.0);
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(mutableLocation.clone(), size, editSession);
+        double y = clickedPosition.getBlockY() - ((double) size / 2.0);
+        Random r = new Random();
 
-        for (Block b : blocks) {
-            if ((!playerBrush.isSurfaceModeEnabled()) || Surface.isOnSurface(b.getLocation(), p.getLocation())) {
-                if ((!playerBrush.isMaskEnabled()) || (b.getType().equals(playerBrush
-                        .getMask()))) {
-                    double _y = (b.getLocation().getBlockY() - y) / (double) size * pbBlocks.size();
-                    Random r = new Random();
-                    int block = (int) (_y + (r.nextDouble() * 2 - 1) * ((double) mixing / 100.0));
-                    if (block == -1) {
-                        block = 0;
-                    }
-                    if (block == pbBlocks.size()) {
-                        block = pbBlocks.size() - 1;
-                    }
-                    double rate = (b
-                            .getLocation()
-                            .distance(loc) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) / (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
+        for (MutableVector3 blockLocation : blocks) {
+            double _y = (blockLocation.getBlockY() - y) / (double) size * pbBlocks.size();
+            int blockIndex = (int) (_y + (r.nextDouble() * 2 - 1) * ((double) mixing / 100.0));
+            blockIndex = Math.max(0, Math.min(blockIndex, pbBlocks.size() - 1));
 
-                    if (!(r.nextDouble() <= rate)) {
-                        Vector3 vector3 = Vector3.at(b.getX(), b.getY(), b.getZ());
-                        if (isGmask(session, vector3.toBlockPoint())) {
-                            try {
-                                session.setBlock(
-                                        b.getX(), b.getY(), b.getZ(),
-                                        BukkitAdapter.asBlockType(pbBlocks.get(block)).getDefaultState()
-                                );
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
-                }
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+
+            double rate = (blockLocation.distance(mutableLocation) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) /
+                    (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
+
+            if ((r.nextDouble() <= rate)) {
+                continue;
+            }
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+            try {
+                editSession.setBlock(
+                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
+                        pbBlocks.get(blockIndex).getDefaultState()
+                );
+            } catch (Exception ignored) {
+                // Handle any exceptions that may occur during block placement
             }
 
         }
-        return;
     }
+
 }
