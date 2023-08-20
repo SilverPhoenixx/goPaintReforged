@@ -24,6 +24,7 @@ import net.arcaniax.gopaint.paint.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -48,6 +49,8 @@ public class BrushesInventory extends GoPaintInventory {
         }
         int x = 0;
 
+        Block b = null;
+        b.getLocation().getChunk().getX();
 
         ArrayList<String> mainBrushLore = new ArrayList<>();
         mainBrushLore.add("");

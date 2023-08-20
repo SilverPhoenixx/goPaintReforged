@@ -19,6 +19,8 @@
 package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.color.AngleBrush;
@@ -57,8 +59,8 @@ public class AbstractPlayerBrush {
     String axis;
 
     Brush brush;
-    Material mask;
-    List<Material> blocks;
+    BlockType mask;
+    List<BlockType> blocks;
     List<BiomeType> biomeTypes;
 
 
@@ -78,10 +80,10 @@ public class AbstractPlayerBrush {
         this.brush = GoPaint.getBrushManager().cycleColor((ColorBrush) brush);
         this.brushSize = GoPaint.getSettings().getDefaultSize();
         this.blocks = new ArrayList<>();
-        this.blocks.add(Material.STONE);
+        this.blocks.add(BlockTypes.STONE);
         this.biomeTypes = new ArrayList<>();
 
-        mask = Material.SPONGE;
+        mask = BlockTypes.SPONGE;
     }
 
     public List<BiomeType> getBiomeTypes() {
@@ -142,11 +144,11 @@ public class AbstractPlayerBrush {
         this.fractureDistance += change;
     }
 
-    public Material getMask() {
+    public BlockType getMask() {
         return mask;
     }
 
-    public List<Material> getBlocks() {
+    public List<BlockType> getBlocks() {
         return blocks;
     }
 
@@ -225,7 +227,7 @@ public class AbstractPlayerBrush {
         if (blocks.isEmpty()) {
             lore.append(" none");
         } else {
-            for (Material material : blocks) {
+            for (BlockType material : blocks) {
                 lore.append(" ").append(material.toString().toLowerCase());
             }
         }
@@ -270,4 +272,11 @@ public class AbstractPlayerBrush {
         return i;
     }
 
+    public BlockType getBlockTypeFromMaterial(Material material) {
+        return BlockType.REGISTRY.get(material.getKey().toString());
+    }
+
+    public Material getMaterialFromBlockType(BlockType blockType) {
+        return Material.getMaterial(blockType.getId().replace(blockType.getNamespace() + ":", "").toUpperCase());
+    }
 }

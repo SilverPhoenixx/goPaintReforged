@@ -19,6 +19,7 @@
 package net.arcaniax.gopaint.inventories;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.settings.AbstractSetting;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
@@ -103,7 +104,7 @@ public class MenuInventory extends GoPaintInventory {
         // Mask Item Pane
         this.inventory.setItem(7, new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).setName("§7").create());
 
-        Material maskItem = playerBrush.getMask();
+        Material maskItem = playerBrush.getMaterialFromBlockType(playerBrush.getMask());
         this.inventory.setItem(16,
                 new ItemBuilder(maskItem).setName("§6Mask Item").setList("§7Click with other block to change").create()
         );
@@ -198,7 +199,8 @@ public class MenuInventory extends GoPaintInventory {
                 x++;
             }
         } else {
-            for (Material pbMaterial : playerBrush.getBlocks()) {
+            for (BlockType blockType : playerBrush.getBlocks()) {
+                Material pbMaterial = playerBrush.getMaterialFromBlockType(blockType);
                 int size = playerBrush.getBlocks().size();
                 int chance = (int) Math.floor(100.0 / size);
                 if (chance > 64) {
@@ -289,7 +291,7 @@ public class MenuInventory extends GoPaintInventory {
                             .getCursor()
                             .getType()
                             .isSolid() && (DisabledBlocks.isDisabled(event.getCursor().getType()))) {
-                        playerBrush.setMask(event.getCursor().getType());
+                        playerBrush.setMask(playerBrush.getBlockTypeFromMaterial(event.getCursor().getType()));
                     }
                 }
             }

@@ -20,6 +20,8 @@ package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
+import com.sk89q.worldedit.world.block.BlockType;
+import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.GoPaint;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -79,7 +81,7 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
                 if (!s.equals("none")) {
                     for (String s2 : s.split(" ")) {
                         String[] type = s2.split(":");
-                        Material mat = Material.getMaterial(type[0].toUpperCase());
+                        BlockType mat = BlockTypes.get(type[0].toUpperCase());
                         this.blocks.add(mat);
                     }
                 }
@@ -87,7 +89,7 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
             if (s.startsWith("§8Mask: ")) {
                 s = s.replaceAll("§8Mask: ", "");
                 String[] type = s.split(":");
-                this.mask = Material.getMaterial(type[0].toUpperCase());
+                this.mask = BlockTypes.get(type[0].toUpperCase());
                 this.maskEnabled = true;
             }
             if (s.startsWith("§8Surface Mode")) {

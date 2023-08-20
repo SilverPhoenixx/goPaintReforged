@@ -19,6 +19,7 @@
 package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.inventories.MenuInventory;
 import net.arcaniax.gopaint.paint.brush.BiomeBrush;
@@ -39,11 +40,11 @@ public class PlayerBrush extends AbstractPlayerBrush {
         player.openInventory(new MenuInventory().createInventory(this));
     }
 
-    public void addBlock(Material itemStack, int slot) {
+    public void addBlock(Material material, int slot) {
         if (blocks.size() >= slot) {
-            blocks.set(slot - 1, itemStack);
+            blocks.set(slot - 1, getBlockTypeFromMaterial(material));
         } else {
-            blocks.add(itemStack);
+            blocks.add(getBlockTypeFromMaterial(material));
         }
         updateInventory();
     }
@@ -106,7 +107,7 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
-    public void setMask(Material material) {
+    public void setMask(BlockType material) {
         this.mask = material;
         updateInventory();
     }
