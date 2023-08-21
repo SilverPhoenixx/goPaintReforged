@@ -46,7 +46,6 @@ public class GlobalSettings {
     
     private boolean enabledByDefault;
     private boolean maskEnabled;
-    private boolean boundingBoxEnabled;
     private boolean surfaceModeEnabled;
     private boolean biomesEnabled;
 
@@ -81,7 +80,6 @@ public class GlobalSettings {
         this.enabledByDefault = false;
         this.maskEnabled = true;
         this.surfaceModeEnabled = false;
-        this.boundingBoxEnabled = false;
         this.biomesEnabled = false;
     }
 
@@ -127,7 +125,6 @@ public class GlobalSettings {
         // Boolean settings
         enabledByDefault = this.goPaint.getConfig().getBoolean("toggles.enabledByDefault");
         maskEnabled = this.goPaint.getConfig().getBoolean("toggles.maskEnabled");
-        boundingBoxEnabled = this.goPaint.getConfig().getBoolean("toggles.boundingBoxEnabled");
         surfaceModeEnabled = this.goPaint.getConfig().getBoolean("toggles.surfaceModeEnabled");
         biomesEnabled = this.goPaint.getConfig().getBoolean("toggles.biomesEnabled");
     }
@@ -194,10 +191,6 @@ public class GlobalSettings {
 
     public boolean isSurfaceModeEnabledDefault() {
         return surfaceModeEnabled;
-    }
-
-    public boolean isBoundingBoxEnabled() {
-        return boundingBoxEnabled;
     }
 
     public int getDefaultFractureDistance() {
