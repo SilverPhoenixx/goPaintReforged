@@ -26,8 +26,11 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BlockState;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -41,9 +44,10 @@ public abstract class Brush {
         if(settings.length >= 10) throw new Exception("You can only add 9 settings to a brush [in: " + this.getClass().getName() + "]");
     }
 
-    public abstract void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session);
-    public void paintLeft(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
-        paintRight(playerBrush, loc, p, session);
+    public abstract void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedBlock, Player player,
+                                    EditSession editSession);
+    public void paintLeft(AbstractPlayerBrush playerBrush, MutableVector3 clickedBlock, Player player, EditSession editSession) {
+        paintRight(playerBrush, clickedBlock, player, editSession);
     }
 
     public void interact(PlayerInteractEvent event, AbstractPlayerBrush playerBrush, Location location) {
@@ -57,7 +61,7 @@ public abstract class Brush {
                     LocalSession localSession =
                             WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
                     EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
-                    playerBrush.getBrush().paintLeft(playerBrush, location, player, editsession);
+                    playerBrush.getBrush().paintLeft(playerBrush, new MutableVector3(location), player, editsession);
 
 
                     localSession.remember(editsession);
@@ -68,15 +72,52 @@ public abstract class Brush {
                     LocalSession localSession =
                             WorldEdit.getInstance().getSessionManager().get(WorldEditPlugin.getInstance().wrapPlayer(player));
                     EditSession editsession = localSession.createEditSession(BukkitAdapter.adapt(player));
-                    playerBrush.getBrush().paintRight(playerBrush, location, player, editsession);
+                    playerBrush.getBrush().paintRight(playerBrush, new MutableVector3(location), player, editsession);
                     localSession.remember(editsession);
                 });
             }
         }
     }
 
-    public boolean isGmask(EditSession session, BlockVector3 v) {
+    public boolean canPlace(EditSession editSession, MutableVector3 blockLocation, AbstractPlayerBrush playerBrush,
+                            MutableVector3 clickedVector) {
+        BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
+                blockLocation.getBlockZ()
+        );
 
+        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
+                clickedVector, editSession
+        )) {
+            return false; // Skip blocks that don't meet surface mode condition
+        }
+
+        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+            return false; // Skip blocks that don't meet the mask condition
+        }
+        return true;
+    }
+
+    public boolean canPlaceWithAir(EditSession editSession, MutableVector3 blockLocation, AbstractPlayerBrush playerBrush,
+                                   MutableVector3 clickedVector) {
+        BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
+                blockLocation.getBlockZ()
+        );
+
+        if(block.isAir()) return false;
+
+        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
+                clickedVector, editSession
+        )) {
+            return false; // Skip blocks that don't meet surface mode condition
+        }
+
+        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+            return false; // Skip blocks that don't meet the mask condition
+        }
+        return true;
+    }
+
+    public boolean isGmask(EditSession session, BlockVector3 v) {
         return session.getActor().getSession().getMask() == null || session.getActor().getSession().getMask().test(v);
     }
     public abstract String getName();

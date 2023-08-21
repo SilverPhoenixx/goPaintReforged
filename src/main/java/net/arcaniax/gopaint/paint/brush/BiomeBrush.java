@@ -18,7 +18,12 @@
  */
 package net.arcaniax.gopaint.paint.brush;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
 import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -60,5 +65,6 @@ public abstract class BiomeBrush extends Brush {
             for(Player worldPlayer : player.getWorld().getPlayers())
             ((CraftPlayer) worldPlayer).getHandle().connection.send(packet);
         }
-    }*/
+    }
+    */
 }
