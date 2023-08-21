@@ -57,44 +57,49 @@ public class DiscBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int brushSize = playerBrush.getBrushSize();
-        List<BlockType> brushMaterials = playerBrush.getBlocks();
-
-        if (brushMaterials.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
+        // Get a list of block locations within the specified radius around the clicked vector
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
+
+        Random random = new Random();
+
         for (MutableVector3 blockLocation : blocks) {
-
-
-            if (!((playerBrush.getAxis().equals("y") && blockLocation.getBlockY() == clickedPosition.getBlockY())
-                    || (playerBrush.getAxis().equals("x") && blockLocation.getBlockX() == clickedPosition.getBlockX())
-                    || (playerBrush.getAxis().equals("z") && blockLocation.getBlockZ() == clickedPosition.getBlockZ()))) {
+            // Check if the block's position matches the specified axis condition
+            if (!((playerBrush.getAxis().equals("y") && blockLocation.getBlockY() == clickedVector.getBlockY())
+                    || (playerBrush.getAxis().equals("x") && blockLocation.getBlockX() == clickedVector.getBlockX())
+                    || (playerBrush.getAxis().equals("z") && blockLocation.getBlockZ() == clickedVector.getBlockZ()))) {
                 continue; // Skip blocks that don't match the axis condition
             }
 
-            if (!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) {
+            // Check if we can place a block at this location, if not, skip to the next location
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
 
-            Random random = new Random();
-            int randomIndex = random.nextInt(brushMaterials.size());
+            // Generate a random index to choose a block from the available block types
+            int randomIndex = random.nextInt(brushBlocks.size());
 
+            // Check if the block location is not masked (can be overwritten)
             if (!isGmask(editSession, blockLocation.toBlockPoint())) {
                 continue;
             }
 
             try {
+                // Set the block at the current location to the randomly chosen block type
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushMaterials.get(randomIndex).getDefaultState()
+                        brushBlocks.get(randomIndex).getDefaultState()
                 );
             } catch (Exception ignored) {
                 // Handle any exceptions that may occur during block placement
             }
         }
     }
-
 }

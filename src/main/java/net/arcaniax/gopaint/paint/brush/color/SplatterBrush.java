@@ -41,38 +41,56 @@ public class SplatterBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int size = playerBrush.getBrushSize();
-        int falloff = playerBrush.getFalloffStrength();
-        List<BlockType> pbBlocks = playerBrush.getBlocks();
-        if (pbBlocks.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // Check if there are no block types to paint.
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        MutableVector3 clickedVector = new MutableVector3(clickedPosition);
+        // Get a list of block positions within a spherical radius (brush size).
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, size, editSession);
+        int falloff = playerBrush.getFalloffStrength();
+        Random random = new Random();
+
         for (MutableVector3 blockLocation : blocks) {
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
-            Random r = new Random();
-            double rate = (blockLocation
-                    .distance(clickedVector) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) / (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
-            if (r.nextDouble() <= rate) {
+
+            // Check if this position is suitable for placing a block. If not, skip.
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
-            int random = r.nextInt(pbBlocks.size());
+
             if (!isGmask(editSession, blockLocation.toBlockPoint())) {
                 continue;
             }
+
+            // Calculate a rate based on the distance of the block from the clicked position and the falloff strength.
+            double rate = (blockLocation.distance(clickedVector) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0))
+                    / (((double) brushSize / 2.0) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0));
+
+            // If a random number is less than or equal to the calculated rate, skip this block.
+            if (random.nextDouble() <= rate) {
+                continue;
+            }
+
+            // Generate a random index to select a block type from the list of block types.
+            int randomBlock = random.nextInt(brushBlocks.size());
+
+
+            // Attempt to set the block at the current location to a random block type from the list.
             try {
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        playerBrush.getBlocks().get(random).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
+                // If there's an exception while setting the block, ignore it and continue.
             }
         }
     }
+
 
     @Override
     public String getName() {

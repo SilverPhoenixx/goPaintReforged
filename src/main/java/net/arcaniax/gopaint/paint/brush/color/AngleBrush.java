@@ -64,21 +64,36 @@ public class AngleBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int brushSize = playerBrush.getBrushSize();
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
         List<BlockType> brushBlocks = playerBrush.getBlocks();
-
         if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> affectedBlocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
-        for (MutableVector3 blockLocation : affectedBlocks) {
-            // Skip if surface mode is enabled
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+        // Get a list of block locations within the specified radius around the clicked vector
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> affectedBlocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
 
+        Random random = new Random();
+
+        for (MutableVector3 blockLocation : affectedBlocks) {
+            // Skip if surface mode is enabled (canPlace method)
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
+                continue;
+            }
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+            // Calculate the block's average height difference with nearby blocks
             double blockHeightDifference = Height.getAverageHeightDiffAngle(blockLocation, 1, editSession);
+
+            // Calculate the maximum allowed angle based on the brush configuration
             double maxAllowedAngle = Math.tan(Math.toRadians(playerBrush.getMinHeightDifference()));
+
+            // Calculate the current angle of height difference for the block
             double currentAngle = Height.getAverageHeightDiffAngle(blockLocation, playerBrush.getAngleDistance(), editSession);
 
             // Skip if the angle condition is not met
@@ -86,26 +101,20 @@ public class AngleBrush extends ColorBrush {
                 continue;
             }
 
-            // Randomly select a block type
-            Random random = new Random();
-            int randomIndex = random.nextInt(brushBlocks.size());
-
-            // Check if it's allowed to replace the block (isGmask method)
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
+            int randomBlock = random.nextInt(brushBlocks.size());
 
             try {
                 // Set the block to a randomly selected block type
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomIndex).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
                 // Handle any exceptions that may occur during block placement
             }
         }
     }
+
 
 }
 

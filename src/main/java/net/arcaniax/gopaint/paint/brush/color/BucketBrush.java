@@ -62,31 +62,37 @@ public class BucketBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int brushSize = playerBrush.getBrushSize();
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
         List<BlockType> brushBlocks = playerBrush.getBlocks();
-
         if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), brushSize, editSession);
-        List<MutableVector3> connectedBlocks = ConnectedBlocks.getConnectedBlocks(new MutableVector3(clickedPosition), blocks, editSession);
+        // Get a list of block locations within the specified radius around the clicked vector
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
 
-        Location playerLocation = player.getLocation();
+        // Find connected blocks within the edit session
+        List<MutableVector3> connectedBlocks = ConnectedBlocks.getConnectedBlocks(clickedVector, blocks, editSession);
+        MutableVector3 playerVector = new MutableVector3(player.getLocation());
+
+        Random random = new Random();
+
         for (MutableVector3 blockLocation : connectedBlocks) {
-            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation, new MutableVector3(playerLocation), editSession)) {
-                continue; // Skip if surface mode is enabled and the block is not on the surface
+            // Check if surface mode is enabled and the block is not on the surface, skip if true
+            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation, playerVector, editSession)) {
+                continue;
             }
 
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+            // Get the current block's state
             BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ());
 
-            if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
-                continue; // Skip if masking is enabled and the block type doesn't match the mask
-            }
-
-            if (isGmask(editSession, blockLocation.toBlockPoint())) {
-                Random random = new Random();
+                // Generate a random index to choose a block from the available block types
                 int randomIndex = random.nextInt(brushBlocks.size());
 
                 try {
@@ -98,8 +104,6 @@ public class BucketBrush extends ColorBrush {
                 } catch (Exception ignored) {
                     // Handle any exceptions that may occur during block placement
                 }
-            }
         }
     }
-
 }

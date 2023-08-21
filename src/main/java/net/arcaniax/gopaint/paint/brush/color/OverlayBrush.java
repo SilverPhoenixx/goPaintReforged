@@ -42,35 +42,49 @@ public class OverlayBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int size = playerBrush.getBrushSize();
-        List<BlockType> pbBlocks = playerBrush.getBlocks();
-        if (pbBlocks.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), size, editSession);
-        for (MutableVector3 blockLocation : blocks) {
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+        // Get a list of block locations within the specified radius
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
 
-            if (!Height.isOnTop(blockLocation, playerBrush.getThickness(), editSession)) {
+        Random random = new Random();
+
+        for (MutableVector3 blockLocation : blocks) {
+            // Check if we can place a block at this location, if not, skip to the next location
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
-            Random r = new Random();
-            int random = r.nextInt(pbBlocks.size());
 
             if (!isGmask(editSession, blockLocation.toBlockPoint())) {
                 continue;
             }
+
+            // Check if the block location is on top of another block (height check)
+            if (!Height.isOnTop(blockLocation, playerBrush.getThickness(), editSession)) {
+                continue;
+            }
+
+            // Generate a random index to choose a block from the available block types
+            int randomBlock = random.nextInt(brushBlocks.size());
+
             try {
+                // Set the block at the current location to the randomly chosen block type
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        pbBlocks.get(random).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
+                // Handle any exceptions that might occur (ignored in this case)
             }
         }
     }
+
 
     @Override
     public String getName() {

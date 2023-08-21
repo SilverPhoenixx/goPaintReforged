@@ -57,20 +57,30 @@ public class FractureBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int size = playerBrush.getBrushSize();
-        List<BlockType> brushMaterials = playerBrush.getBlocks();
-
-        if (brushMaterials.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), size, editSession);
+        // Get a list of block locations within the specified radius
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
+
+        Random random = new Random();
 
         for (MutableVector3 blockLocation : blocks) {
+            // Check if we can place a block at this location, if not, skip to the next location
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
+                continue;
+            }
 
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
 
+            // Calculate the average height difference for the current block and its surroundings
             double blockHeightDiffFracture = Height.getAverageHeightDiffFracture(
                     blockLocation,
                     Height.getHeight(blockLocation, editSession),
@@ -78,6 +88,7 @@ public class FractureBrush extends ColorBrush {
                     editSession
             );
 
+            // Calculate the average height difference over a specified distance
             double fractureDistanceHeightDiff = Height.getAverageHeightDiffFracture(
                     blockLocation,
                     Height.getHeight(blockLocation.clone(), editSession),
@@ -85,20 +96,19 @@ public class FractureBrush extends ColorBrush {
                     editSession
             );
 
+            // Check if the height differences meet a certain threshold (0.1)
             if (!(blockHeightDiffFracture >= 0.1 && fractureDistanceHeightDiff >= 0.1)) {
                 continue;
             }
 
-            Random random = new Random();
-            int randomIndex = random.nextInt(brushMaterials.size());
+            // Generate a random index to choose a block from the available block types
+            int randomBlock = random.nextInt(brushBlocks.size());
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
             try {
+                // Set the block at the current location to the randomly chosen block type
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushMaterials.get(randomIndex).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
                 // Handle any exceptions that may occur during block placement

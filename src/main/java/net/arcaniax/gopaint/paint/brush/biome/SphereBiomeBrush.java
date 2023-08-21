@@ -42,73 +42,68 @@ public class SphereBiomeBrush extends BiomeBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedLocation, Player player, EditSession editSession) {
-        int size = playerBrush.getBrushSize();
-        List<BiomeType> pbBlocks = playerBrush.getBiomeTypes();
-        if (pbBlocks.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player,
+                           EditSession editSession) {
+        // If there are no biome types to place, exit the method
+        List<BiomeType> brushBiomes = playerBrush.getBiomeTypes();
+        if (brushBiomes.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(new MutableVector3(
-                clickedLocation.getX(),
-                clickedLocation.getY(),
-                clickedLocation.getZ()
-        ), size, editSession);
+        // Get a list of block locations within the specified radius around the clicked vector, including air blocks
+        int size = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(clickedVector, size, editSession);
 
+        // Create a list to track unique chunk coordinates
         List<Pair<Integer, Integer>> chunks = new ArrayList<>();
 
-        Location playerLocation = player.getLocation();
+        Random random = new Random();
+
         for (MutableVector3 blockLocation : blocks) {
-            if (playerBrush.isSurfaceModeEnabled()) {
+
+            // Check if we can place a block at this location, if not, skip to the next location
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
 
-            if (!Surface.isOnSurface(blockLocation, new MutableVector3(playerLocation), editSession)) {
-                continue;
-            }
-
-            BlockState block = editSession.getBlock(
-                    blockLocation.getBlockX(),
-                    blockLocation.getBlockY(),
-                    blockLocation.getBlockZ()
-            );
-
-            if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
-                continue;
-            }
-
-            Random r = new Random();
-            int random = r.nextInt(pbBlocks.size());
             if (!isGmask(editSession, blockLocation.toBlockPoint())) {
                 continue;
             }
 
+            // Generate a random index to choose a biome type from the available biome types
+            int randomBlock = random.nextInt(brushBiomes.size());
+
             try {
+                // Get the chunk coordinates for the current block
                 int chunkX = blockLocation.getChunkX();
                 int chunkZ = blockLocation.getChunkZ();
                 Pair<Integer, Integer> chunkCoords = Pair.of(chunkX, chunkZ);
 
+                // Add unique chunk coordinates to the list
                 if (!chunks.contains(chunkCoords)) {
                     chunks.add(chunkCoords);
                 }
 
+                // Set the biome at the current block location to the randomly chosen biome type
                 editSession.setBiome(
                         blockLocation.getBlockX(),
                         blockLocation.getBlockY(),
                         blockLocation.getBlockZ(),
-                        pbBlocks.get(random)
+                        brushBiomes.get(randomBlock)
                 );
 
-
             } catch (Exception ignored) {
+                // Handle any exceptions that may occur during biome placement
             }
-
         }
 
+        // Commit the changes to the edit session
         editSession.commit();
 
+        // Update the player with the affected chunks
         update(player, chunks);
     }
+
 
     @Override
     public String getName() {

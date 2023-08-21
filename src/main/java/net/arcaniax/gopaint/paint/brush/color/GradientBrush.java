@@ -57,34 +57,27 @@ public class GradientBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-
-        MutableVector3 mutableLocation = new MutableVector3(clickedPosition);
-
-        int size = playerBrush.getBrushSize();
-        int falloff = playerBrush.getFalloffStrength();
-        int mixing = playerBrush.getMixingStrength();
-        List<BlockType> pbBlocks = playerBrush.getBlocks();
-
-        if (pbBlocks.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(mutableLocation, size, editSession);
-        double y = clickedPosition.getBlockY() - ((double) size / 2.0);
-        Random r = new Random();
+        // Get a list of block locations within the specified radius
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
+
+        int falloff = playerBrush.getFalloffStrength();
+        int mixing = playerBrush.getMixingStrength();
+        Random random = new Random();
+
+        // Calculate the base Y coordinate for block placement
+        double y = clickedVector.getBlockY() - ((double) brushSize / 2.0);
 
         for (MutableVector3 blockLocation : blocks) {
-            double _y = (blockLocation.getBlockY() - y) / (double) size * pbBlocks.size();
-            int blockIndex = (int) (_y + (r.nextDouble() * 2 - 1) * ((double) mixing / 100.0));
-            blockIndex = Math.max(0, Math.min(blockIndex, pbBlocks.size() - 1));
-
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
-
-            double rate = (blockLocation.distance(mutableLocation) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0)) /
-                    (((double) size / 2.0) - ((double) size / 2.0) * ((100.0 - (double) falloff) / 100.0));
-
-            if ((r.nextDouble() <= rate)) {
+            // Check if we can place a block at this location, if not, skip to the next location
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
 
@@ -92,16 +85,35 @@ public class GradientBrush extends ColorBrush {
                 continue;
             }
 
+            // Calculate the relative Y coordinate to determine the block index
+            double _y = (blockLocation.getBlockY() - y) / (double) brushSize * brushBlocks.size();
+
+            // Calculate a random offset for block selection based on mixing strength
+            int randomBlock = (int) (_y + (random.nextDouble() * 2 - 1) * ((double) mixing / 100.0));
+
+            // Ensure the block index is within valid bounds
+            randomBlock = Math.max(0, Math.min(randomBlock, brushBlocks.size() - 1));
+
+            // Calculate the rate of block placement based on falloff strength and distance
+            double rate = (blockLocation.distance(clickedVector) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0)) /
+                    (((double) brushSize / 2.0) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0));
+
+            // Check if the random value falls within the placement rate
+            if ((random.nextDouble() <= rate)) {
+                continue;
+            }
+
+            // Set the block at the current location to the randomly chosen block type
             try {
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        pbBlocks.get(blockIndex).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
                 // Handle any exceptions that may occur during block placement
             }
-
         }
     }
+
 
 }

@@ -28,7 +28,6 @@ import net.arcaniax.gopaint.paint.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.curve.BezierSpline;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -45,61 +44,67 @@ public class PaintBrush extends ColorBrush {
         });
     }
 
-    private static final HashMap<String, List<MutableVector3>> selectedPoints;
+    private static final HashMap<String, List<MutableVector3>> SELECTED_POINTS;
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        final String prefix = GoPaint.getSettings().getPrefix();
+    public void paintRight(
+            AbstractPlayerBrush playerBrush,
+            MutableVector3 clickedVector,
+            Player player,
+            EditSession editSession
+    ) {
+        // Get the prefix for messages from settings
+        String prefix = GoPaint.getSettings().getPrefix();
+        String playerName = player.getName();
 
-        if (!PaintBrush.selectedPoints.containsKey(player.getName())) {
-            final List<MutableVector3> locs = new LinkedList<>();
-            locs.add(new MutableVector3(clickedPosition));
-            PaintBrush.selectedPoints.put(player.getName(), locs);
-            player.sendMessage(prefix + " Paint brush point #1 set.");
+        if (!SELECTED_POINTS.containsKey(playerName) || !player.isSneaking()) {
+            List<MutableVector3> locs = SELECTED_POINTS.getOrDefault(playerName, new LinkedList<>());
+            locs.add(clickedVector);
+            SELECTED_POINTS.put(playerName, locs);
+            int pointNumber = locs.size();
+            player.sendMessage(prefix + " Paint brush point #" + pointNumber + " set.");
+        }
+
+        List<MutableVector3> locs = SELECTED_POINTS.get(player.getName());
+        locs.add(clickedVector);
+        SELECTED_POINTS.remove(player.getName());
+
+        // Check if the brush has no blocks
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        if (!player.isSneaking()) {
-            final List<MutableVector3> locs = PaintBrush.selectedPoints.get(player.getName());
-            locs.add(new MutableVector3(clickedPosition));
-            PaintBrush.selectedPoints.put(player.getName(), locs);
-            player.sendMessage(prefix + " Paint brush point #" + locs.size() + " set.");
-            return;
-        }
+        // Get the blocks in a spherical radius around the first selected point
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(locs.get(0), brushSize, editSession);
 
-        final PlayerBrush pb = GoPaint.getBrushManager().getPlayerBrush(player);
-        final List<BlockType> pbBlocks = pb.getBlocks();
+        int falloff = playerBrush.getFalloffStrength();
 
-        if (pbBlocks.isEmpty()) {
-            return;
-        }
+        Random random = new Random();
 
-        final List<MutableVector3> locs = PaintBrush.selectedPoints.get(player.getName());
-        locs.add(new MutableVector3(clickedPosition));
-        PaintBrush.selectedPoints.remove(player.getName());
+        for (MutableVector3 blockLocation : blocks) {
 
-        final int size = pb.getBrushSize();
-        final int falloff = pb.getFalloffStrength();
 
-        final List<MutableVector3> blocks = Sphere.getBlocksInRadiusWithAir(locs.get(0), size, editSession);
-        for (final MutableVector3 blockLocation : blocks) {
-            final Random r = new Random();
-            final int random = r.nextInt(pbBlocks.size());
-            final double rate = (blockLocation
-                    .distance(locs.get(0)) - size / 2.0 * ((100.0 - falloff) / 100.0)) / (size / 2.0 - size / 2.0 * ((100.0 - falloff) / 100.0));
-            if (r.nextDouble() < rate) {
+            // Calculate the rate at which to place blocks based on distance and falloff
+            double rate = (blockLocation.distance(locs.get(0)) - brushSize / 2.0 * ((100.0 - falloff) / 100.0)) /
+                    (brushSize / 2.0 - brushSize / 2.0 * ((100.0 - falloff) / 100.0));
+
+            // Check if a randomly generated value is less than the rate, if so, continue to the next block
+            if (random.nextDouble() < rate) {
                 continue;
             }
 
-            final LinkedList<MutableVector3> newCurve = new LinkedList<>();
+            LinkedList<MutableVector3> newCurve = new LinkedList<>();
             int amount = 0;
-            for (final MutableVector3 l : locs) {
+            for (MutableVector3 l : locs) {
                 if (amount == 0) {
                     newCurve.add(blockLocation);
                     amount++;
                     continue;
                 }
 
+                // Calculate the new location for the current point in the selection
                 MutableVector3 newLocation = blockLocation.add(
                         l.getX() - locs.get(0).getX(),
                         l.getY() - locs.get(0).getY(),
@@ -110,24 +115,32 @@ public class PaintBrush extends ColorBrush {
                 ++amount;
             }
 
-            final BezierSpline bs = new BezierSpline(newCurve);
-            final double length = bs.getCurveLength();
-            for (int maxCount = (int) (length * 2.5) + 1, y = 0; y <= maxCount; ++y) {
-                final MutableVector3 currentLocation = bs.getPoint(y / (double) maxCount * (locs.size() - 1));
+            // Create a Bezier spline from the new curve
+            BezierSpline bs = new BezierSpline(newCurve);
+            double length = bs.getCurveLength();
 
-                if (!canPlaceWithAir(editSession, currentLocation, playerBrush, clickedPosition)) {
+            int randomBlock = random.nextInt(brushBlocks.size());
+
+            // Iterate over points on the spline and place blocks if conditions are met
+            for (int maxCount = (int) (length * 2.5) + 1, y = 0; y <= maxCount; ++y) {
+                MutableVector3 currentLocation = bs.getPoint(y / (double) maxCount * (locs.size() - 1));
+
+                // Check if a block can be placed at the current location
+                if (!canPlaceWithAir(editSession, currentLocation, playerBrush, clickedVector)) {
                     continue;
                 }
 
+                // Set the block at the current location to a randomly selected block from the brush
                 editSession.setBlock(
                         currentLocation.getBlockX(),
                         currentLocation.getBlockY(),
                         currentLocation.getBlockZ(),
-                        pb.getBlocks().get(random)
+                        brushBlocks.get(randomBlock)
                 );
             }
         }
     }
+
 
 
     @Override
@@ -146,7 +159,7 @@ public class PaintBrush extends ColorBrush {
     }
 
     static {
-        selectedPoints = new HashMap<>();
+        SELECTED_POINTS = new HashMap<>();
     }
 
 }

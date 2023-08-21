@@ -40,30 +40,45 @@ public class SphereBrush extends ColorBrush {
     }
 
     @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, Location clickedPosition, Player player, EditSession editSession) {
-        int size = playerBrush.getBrushSize();
-        List<BlockType> pbBlocks = playerBrush.getBlocks();
-        if (pbBlocks.isEmpty()) {
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // Check if there are no block types to paint.
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(new MutableVector3(clickedPosition), size, editSession);
+        // Get a list of block positions within a spherical radius (brush size).
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
+
+        Random random = new Random();
+
         for (MutableVector3 blockLocation : blocks) {
-            if(!canPlace(editSession, blockLocation, playerBrush, clickedPosition)) continue;
-            Random r = new Random();
-            int random = r.nextInt(pbBlocks.size());
+
+            // Check if this position is suitable for placing a block. If not, skip.
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
+                continue;
+            }
+
             if (!isGmask(editSession, blockLocation.toBlockPoint())) {
                 continue;
             }
+
+            // Choose a random block type from the list.
+            int randomBlock = random.nextInt(brushBlocks.size());
+
+            // Attempt to set the block at the current position to a random block type from the list.
             try {
                 editSession.setBlock(
                         blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        pbBlocks.get(random).getDefaultState()
+                        brushBlocks.get(randomBlock).getDefaultState()
                 );
             } catch (Exception ignored) {
+                // Ignore any exceptions that occur during block placement.
             }
         }
     }
+
 
     @Override
     public String getName() {
