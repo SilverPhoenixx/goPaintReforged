@@ -1,21 +1,3 @@
-/*
- * goPaint is designed to simplify painting inside of Minecraft.
- * Copyright (C) Arcaniax-Development
- * Copyright (C) Arcaniax team and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package net.arcaniax.gopaint.utils.blocks;
 
 import com.sk89q.worldedit.EditSession;
@@ -23,60 +5,74 @@ import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ConnectedBlocks {
 
+    /**
+     * Function to find connected blocks from a given startPoint
+     * @return list of the connected blocks
+     */
     public static List<MutableVector3> getConnectedBlocks(
-            MutableVector3 location,
-            List<MutableVector3> blocks,
+            MutableVector3 startPoint,
+            List<MutableVector3> blocksInArea,
             EditSession editSession
     ) {
-        MutableVector3 startBlock = location.clone();
+        // Set to store connected blocks
+        // We use Set because they didnt store duplicates
+        Set<MutableVector3> connected = new HashSet<>();
 
-        BlockType checkingBlock =
-                editSession.getBlock(startBlock.getBlockX(), startBlock.getBlockY(), startBlock.getBlockZ()).getBlockType();
+        Queue<MutableVector3> queue = new LinkedList<>();
+        queue.add(startPoint.clone()); // Start from the provided startPoint
 
-        List<MutableVector3> connectCheckBlocks = new ArrayList<>();
-        List<MutableVector3> hasBeenChecked = new ArrayList<>();
-        List<MutableVector3> connected = new ArrayList<>();
-        int x = 0;
-        connectCheckBlocks.add(startBlock);
-        connected.add(startBlock);
-        while (!connectCheckBlocks.isEmpty() && x < 5000) {
-            MutableVector3 b = connectCheckBlocks.get(0);
+        // Get the block type to check against
+        BlockType checkingBlock = getBlockType(startPoint, editSession);
 
-            for (MutableVector3 blockLocation : getBlocksAround(b)) {
-                BlockState blockState = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
-                        blockLocation.getBlockZ()
-                );
-                if ((!connected.contains(blockLocation))
-                        && (!hasBeenChecked.contains(blockLocation))
-                        && blocks.contains(blockLocation)
-                        && checkingBlock == blockState.getBlockType()) {
-                    connectCheckBlocks.add(blockLocation);
-                    connected.add(blockLocation);
-                    x++;
+        // Track the current step for limiting iterations
+        int currentStep = 0;
+
+        // Perform BFS traversal
+        while (!queue.isEmpty() && currentStep < 5000) {
+            MutableVector3 currentBlock = queue.poll(); // Get the next block to examine
+            connected.add(currentBlock); // Mark it as connected
+
+            // Explore blocks around the current block
+            for (MutableVector3 aroundBlock : getBlocksAround(currentBlock)) {
+                // Check if the block hasn't been connected, is in the specified area, and matches the checkingBlock type
+                if (!connected.contains(aroundBlock) &&
+                        blocksInArea.contains(aroundBlock) &&
+                        checkingBlock == getBlockType(aroundBlock, editSession)) {
+                    queue.add(aroundBlock); // Add it to the queue for further exploration
                 }
             }
-            hasBeenChecked.add(b);
-            connectCheckBlocks.remove(b);
+
+            currentStep++; // Increment the step count
         }
-        return connected;
+
+        // Convert the connected Set to a List for the final result
+        return new ArrayList<>(connected);
     }
 
-    private static List<MutableVector3> getBlocksAround(MutableVector3 b) {
+    // Function to get the block type at a given location
+    private static BlockType getBlockType(MutableVector3 block, EditSession editSession) {
+        BlockState blockState = editSession.getBlock(
+                block.getBlockX(), block.getBlockY(), block.getBlockZ()
+        );
+        return blockState.getBlockType();
+    }
+
+    // Function to get the blocks around a given block
+    private static List<MutableVector3> getBlocksAround(MutableVector3 currentBlock) {
         List<MutableVector3> blocks = new ArrayList<>();
-        blocks.add(b.clone().addX(1));
-        blocks.add(b.clone().subtractX(1));
-
-        blocks.add(b.clone().addY(1));
-        blocks.add(b.clone().subtractY(1));
-
-        blocks.add(b.clone().addZ(1));
-        blocks.add(b.clone().subtractZ(1));
+        blocks.add(currentBlock.clone().addX(1));
+        blocks.add(currentBlock.clone().subtractX(1));
+        blocks.add(currentBlock.clone().addY(1));
+        blocks.add(currentBlock.clone().subtractY(1));
+        blocks.add(currentBlock.clone().addZ(1));
+        blocks.add(currentBlock.clone().subtractZ(1));
         return blocks;
     }
+
+}
 
 }

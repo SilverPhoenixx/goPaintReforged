@@ -25,55 +25,72 @@ import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 public class Surface {
 
-
     /**
-     * Checks if the block is on surface
+     * Checks if the block is on the surface
      *
-     * @param blockLocation  checked location (Cloned)
-     * @param playerLocation player location (Cloned)
-     * @return true when its on surface and false when its not the surface
+     * @param blockLocation  The location of the block being checked
+     * @param playerLocation The location of the player
+     * @param editSession    The editing session used to query block states
+     * @return true when the block is on the surface, false otherwise
      */
     public static boolean isOnSurface(MutableVector3 blockLocation, MutableVector3 playerLocation, EditSession editSession) {
-        playerLocation.addY(1.5);
-        double distanceX = playerLocation.getX() - blockLocation.getX();
-        double distanceY = playerLocation.getY() - blockLocation.getY();
-        double distanceZ = playerLocation.getZ() - blockLocation.getZ();
+        // Clone the input vectors to avoid modifying the original vectors
+        MutableVector3 blockVector = blockLocation.clone();
+        MutableVector3 playerVector = playerLocation.clone();
 
+        // Raise the player's position by 1.5 units
+        playerVector.addY(1.5);
+
+        // Calculate the distances between the player and the block in each dimension
+        double distanceX = playerVector.getX() - blockVector.getX();
+        double distanceY = playerVector.getY() - blockVector.getY();
+        double distanceZ = playerVector.getZ() - blockVector.getZ();
+
+        // Adjust the block's coordinates based on the distances
         // Change x coordinate
         if (distanceX > 1) {
-            blockLocation.addX(1);
+            blockVector.addX(1);
         } else if (distanceX > 0) {
-            blockLocation.addX(0.5);
+            blockVector.addX(0.5);
         }
 
         // Change y coordinate
         if (distanceY > 1) {
-            blockLocation.addY(1);
+            blockVector.addY(1);
         } else if (distanceY > 0) {
-            blockLocation.addY(0.5);
+            blockVector.addY(0.5);
         }
 
         // Change z coordinate
         if (distanceZ > 1) {
-            blockLocation.addZ(1);
+            blockVector.addZ(1);
         } else if (distanceZ > 0) {
-            blockLocation.addZ(0.5);
+            blockVector.addZ(0.5);
         }
 
-        double distance = blockLocation.distance(playerLocation);
+        // Calculate the overall distance between the adjusted block and player positions
+        double distance = blockVector.distance(playerVector);
+
+        // Iterate through the points between the player and the block
         for (int currentDistance = 1; currentDistance < distance; currentDistance++) {
+            // Calculate the movement in each dimension for this point
             double moveX = distanceX * (currentDistance / distance);
             double moveY = distanceY * (currentDistance / distance);
             double moveZ = distanceZ * (currentDistance / distance);
 
-            MutableVector3 checkLoc = new MutableVector3(blockLocation).add(moveX, moveY, moveZ);
+            // Calculate the location to check
+            MutableVector3 checkLoc = new MutableVector3(blockVector).add(moveX, moveY, moveZ);
+
+            // Get the block state at the checked location
             BlockState blockState = editSession.getBlock(checkLoc.getBlockX(), checkLoc.getBlockY(), checkLoc.getBlockZ());
 
+            // If the block is not air (i.e., it's a solid block), return false
             if (blockState.getBlockType() != BlockTypes.AIR) {
                 return false;
             }
         }
 
+        // If no solid blocks were encountered, return true (the block is on the surface)
         return true;
     }
 
