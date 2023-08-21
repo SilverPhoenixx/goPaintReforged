@@ -63,7 +63,7 @@ public class SphereBiomeBrush extends BiomeBrush {
                 continue;
             }
 
-            if (!Surface.isOnSurface(blockLocation.clone(), new MutableVector3(playerLocation), editSession)) {
+            if (!Surface.isOnSurface(blockLocation, new MutableVector3(playerLocation), editSession)) {
                 continue;
             }
 

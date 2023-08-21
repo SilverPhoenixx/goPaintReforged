@@ -73,7 +73,7 @@ public class FractureBrush extends ColorBrush {
 
             double blockHeightDiffFracture = Height.getAverageHeightDiffFracture(
                     blockLocation,
-                    Height.getHeight(blockLocation.clone(), editSession),
+                    Height.getHeight(blockLocation, editSession),
                     1,
                     editSession
             );

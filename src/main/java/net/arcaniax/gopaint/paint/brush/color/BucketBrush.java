@@ -19,6 +19,8 @@
 package net.arcaniax.gopaint.paint.brush.color;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
@@ -29,6 +31,8 @@ import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.math.Surface;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -71,7 +75,7 @@ public class BucketBrush extends ColorBrush {
 
         Location playerLocation = player.getLocation();
         for (MutableVector3 blockLocation : connectedBlocks) {
-            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(), new MutableVector3(playerLocation), editSession)) {
+            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation, new MutableVector3(playerLocation), editSession)) {
                 continue; // Skip if surface mode is enabled and the block is not on the surface
             }
 

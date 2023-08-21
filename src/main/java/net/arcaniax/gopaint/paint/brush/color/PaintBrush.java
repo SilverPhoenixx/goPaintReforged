@@ -95,12 +95,12 @@ public class PaintBrush extends ColorBrush {
             int amount = 0;
             for (final MutableVector3 l : locs) {
                 if (amount == 0) {
-                    newCurve.add(blockLocation.clone());
+                    newCurve.add(blockLocation);
                     amount++;
                     continue;
                 }
 
-                MutableVector3 newLocation = blockLocation.clone().add(
+                MutableVector3 newLocation = blockLocation.add(
                         l.getX() - locs.get(0).getX(),
                         l.getY() - locs.get(0).getY(),
                         l.getZ() - locs.get(0).getZ()

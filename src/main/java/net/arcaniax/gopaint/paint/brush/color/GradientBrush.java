@@ -70,7 +70,7 @@ public class GradientBrush extends ColorBrush {
             return;
         }
 
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(mutableLocation.clone(), size, editSession);
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(mutableLocation, size, editSession);
         double y = clickedPosition.getBlockY() - ((double) size / 2.0);
         Random r = new Random();
 
