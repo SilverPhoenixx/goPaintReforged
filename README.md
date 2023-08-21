@@ -10,12 +10,11 @@
 
 ## Refractored
 * Refractored by _SilverPhoenix
-* This plugin supports only 1.19.2 version because im too lazy, lmao
 * Added easy brush implementation api
 * Added biome brushes
 * Added more blocks you can use in brushes
-* Added better readability and performance (because of polymorphism)
-* Currently no support for ExportedBrush with biomes
+* Added better readability and performance
+* Currently no support for ExportedBrush
 ---
 
 goPaint is a plugin that's designed to simplify painting inside of Minecraft,
@@ -23,8 +22,7 @@ it has the essential features required for painting in Minecraft,
 but with a revolutionary Surface Mode which lets you paint only the viewable blocks.
 
 ## Download Links
-Only 1.19.2 is tested
-* [1.19.2](https://workupload.com/file/Adng8tATfhX)
+Only 1.20.1 is tested
 
 ## Links of Arcaniaxs GoPaint
 
@@ -34,19 +32,24 @@ Only 1.19.2 is tested
 * [Issues](https://github.com/Brennian/goPaint_1.14/issues)
 
 ## API
+**BiomeBrushes** are shown when "Biome" is enabled
+**ColorBrushes** are shown when "Biome" is disabled
 
-If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"** [in net.arcaniax.gopaint.paint.brush]
+If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"**\
+[in net.arcaniax.gopaint.paint.brush]
 
-BiomeBrushes are shown when "Biome" is enabled
-ColorBrushes are shown when "Biome" is disabled
+You can add only up to **9** settings for a brush.
+If you try to add more than 9, the constructor throws an error. **(IllegalArgumentException)**
 
-You can add only upto **9** settings for a brush.
+When you initialize your plugin add the brush to the PlayerBrushManager.\
+[GoPaint.getBrushManager()]
 
-When you initialize your plugin add the brush to the PlayerBrushManager
 
-**ColorBrush:** GoPaintPlugin.getBrushManager().getColorBrushes().add(new ExampleBrush());
+**ColorBrush:** **GoPaint.getBrushManager().getColorBrushes().add(new ExampleBrush());
 <br><br>
-**BiomeBrush:** GoPaintPlugin.getBrushManager().getBiomeBrushes().add(new ExampleBrush());
+**BiomeBrush:** GoPaint.getBrushManager().getBiomesBrushes().add(new ExampleBrush());
+
+## Example Class:
 
     public class ExampleBrush extends ColorBrush {
         public ExampleBrush() {
@@ -75,9 +78,29 @@ When you initialize your plugin add the brush to the PlayerBrushManager
         }
 
         @Override
-        public void paintRight(AbstractPlayerBrush playerBrush, Location loc, Player p, EditSession session) {
+        public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player,
+        EditSession editSession) {
+            ...
         }
     }
+
+### Utils
+
+Items [in net.arcaniax.gopaint.utils]:
+- ItemBuilder
+
+Vector [in net.arcaniax.gopaint.utils.vectors]:
+- MutableVector3
+
+Math [in net.arcaniax.gopaint.utils.math]:
+- Height
+- Sphere
+- Surface
+- Curve
+
+Blocks [in net.arcaniax.gopaint.utils.blocks]:
+- ConnectedBlocks
+    
 
 
 
