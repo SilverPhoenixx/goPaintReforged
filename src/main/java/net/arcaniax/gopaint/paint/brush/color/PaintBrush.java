@@ -63,10 +63,10 @@ public class PaintBrush extends ColorBrush {
             SELECTED_POINTS.put(playerName, locs);
             int pointNumber = locs.size();
             player.sendMessage(prefix + " Paint brush point #" + pointNumber + " set.");
+            return;
         }
 
         List<MutableVector3> locs = SELECTED_POINTS.get(player.getName());
-        locs.add(clickedVector);
         SELECTED_POINTS.remove(player.getName());
 
         // Check if the brush has no blocks
@@ -96,23 +96,22 @@ public class PaintBrush extends ColorBrush {
             }
 
             LinkedList<MutableVector3> newCurve = new LinkedList<>();
-            int amount = 0;
+            boolean start = true;
             for (MutableVector3 l : locs) {
-                if (amount == 0) {
-                    newCurve.add(blockLocation);
-                    amount++;
+                if (start) {
+                    newCurve.add(blockLocation.clone());
+                    start = false;
                     continue;
                 }
 
                 // Calculate the new location for the current point in the selection
-                MutableVector3 newLocation = blockLocation.add(
+                MutableVector3 newLocation = blockLocation.clone().add(
                         l.getX() - locs.get(0).getX(),
                         l.getY() - locs.get(0).getY(),
                         l.getZ() - locs.get(0).getZ()
                 );
 
                 newCurve.add(newLocation);
-                ++amount;
             }
 
             // Create a Bezier spline from the new curve
