@@ -41,17 +41,17 @@ public class PlayerBrush extends AbstractPlayerBrush {
     }
 
     public void addBlock(Material material, int slot) {
-        if (blocks.size() >= slot) {
-            blocks.set(slot - 1, getBlockTypeFromMaterial(material));
+        if (blockTypes.size() >= slot) {
+            blockTypes.set(slot - 1, getBlockTypeFromMaterial(material));
         } else {
-            blocks.add(getBlockTypeFromMaterial(material));
+            blockTypes.add(getBlockTypeFromMaterial(material));
         }
         updateInventory();
     }
 
     public void removeBlock(int slot) {
-        if (blocks.size() >= slot) {
-            blocks.remove(slot - 1);
+        if (blockTypes.size() >= slot) {
+            blockTypes.remove(slot - 1);
             updateInventory();
         }
     }

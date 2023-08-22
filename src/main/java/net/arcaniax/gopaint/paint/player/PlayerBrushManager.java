@@ -119,9 +119,9 @@ public class PlayerBrushManager {
     }
 
     public Brush getBiomeBrush(String name) {
-        for (Brush b : biomeBrushes) {
-            if (b.getName().equalsIgnoreCase(name)) {
-                return b;
+        for (Brush currentBrush : biomeBrushes) {
+            if (currentBrush.getName().equalsIgnoreCase(name)) {
+                return currentBrush;
             }
         }
         return biomeBrushes.get(0);

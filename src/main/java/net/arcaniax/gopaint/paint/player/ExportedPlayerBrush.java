@@ -36,64 +36,92 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
     }
 
     public ExportedPlayerBrush(String name, List<String> lore) {
-        brush = GoPaint.getBrushManager().getColorBrush(name.replaceAll(" §b♦ ", ""));
-        blocks = new ArrayList<>();
+        this.enabled = true;
+
+        blockTypes = new ArrayList<>();
         biomeTypes = new ArrayList<>();
         for (String s : lore) {
-            if (s.startsWith("§8Size: ")) {
-                this.brushSize = Integer.parseInt(s.replaceAll("§8Size: ", ""));
-            } else if (s.startsWith("§8Chance: ")) {
-                this.chance = Integer.parseInt(s.replaceAll("§8Chance: ", "").replaceAll("%", ""));
+            if (s.startsWith("Surface Mode: ")) {
+                this.surfaceEnabled = Boolean.parseBoolean(s.replaceAll("Surface Mode: ", ""));
+                continue;
             }
-            if (s.startsWith("§8Thickness: ")) {
-                this.thickness = Integer.parseInt(s.replaceAll("§8Thickness: ", ""));
+            if (s.startsWith("Mask Enabled: ")) {
+                this.maskEnabled = Boolean.parseBoolean(s.replaceAll("Mask Enabled: ", ""));
+                continue;
             }
-            if (s.startsWith("§8Axis: ")) {
-                this.axis = s.replaceAll("§8Axis: ", "");
+            if (s.startsWith("Biome Mode: ")) {
+                this.biomeBrush = Boolean.parseBoolean(s.replaceAll("Biome Mode: ", ""));
+                continue;
             }
-            if (s.startsWith("§8FractureDistance: ")) {
-                this.fractureDistance = Integer.parseInt(s.replaceAll("§8FractureDistance: ", ""));
+            if (s.startsWith("Brush Size: ")) {
+                this.brushSize = Integer.parseInt(s.replaceAll("Brush Size: ", ""));
+                continue;
             }
-            if (s.startsWith("§8AngleDistance: ")) {
-                this.angleDistance = Integer.parseInt(s.replaceAll("§8AngleDistance: ", ""));
+            if (s.startsWith("Place Chance: ")) {
+                this.chance = Integer.parseInt(s.replaceAll("Place Chance: ", "").replaceAll("%", ""));
+                continue;
             }
-            if (s.startsWith("§8AngleHeightDifference: ")) {
-                this.minAngleHeightDifference = Double.parseDouble(s.replaceAll("§8AngleHeightDifference: ", ""));
+            if (s.startsWith("Thickness: ")) {
+                this.thickness = Integer.parseInt(s.replaceAll("Thickness: ", ""));
+                continue;
             }
-            if (s.startsWith("§8Mixing: ")) {
-                this.mixingStrength = Integer.parseInt(s.replaceAll("§8Mixing: ", ""));
+            if (s.startsWith("Axis: ")) {
+                this.axis = s.replaceAll("Axis: ", "");
+                continue;
             }
-            if (s.startsWith("§8Falloff: ")) {
-                this.falloffStrength = Integer.parseInt(s.replaceAll("§8Falloff: ", ""));
+            if (s.startsWith("FractureDistance: ")) {
+                this.fractureDistance = Integer.parseInt(s.replaceAll("FractureDistance: ", ""));
+                continue;
             }
-            if(s.startsWith("§8Biome: ")) {
-                s = s.replaceAll("§8Blocks: ", "");
-                if (!s.equals("none")) {
+            if (s.startsWith("AngleDistance: ")) {
+                this.angleDistance = Integer.parseInt(s.replaceAll("AngleDistance: ", ""));
+                continue;
+            }
+            if (s.startsWith("AngleHeightDifference: ")) {
+                this.minAngleHeightDifference = Double.parseDouble(s.replaceAll("AngleHeightDifference: ", ""));
+                continue;
+            }
+            if (s.startsWith("Mixing: ")) {
+                this.mixingStrength = Integer.parseInt(s.replaceAll("Mixing: ", ""));
+                continue;
+            }
+
+            if (s.startsWith("Falloff: ")) {
+                this.falloffStrength = Integer.parseInt(s.replaceAll("Falloff: ", ""));
+                continue;
+            }
+
+            if(s.startsWith("Biomes: ")) {
+                s = s.replaceAll("Biomes: ", "");
+                if (!s.equals("None")) {
                     for (String s2 : s.split(" ")) {
-                        String[] type = s2.split(":");
-                        BiomeType biomeType = BiomeTypes.get(type[0].toLowerCase());
+                        BiomeType biomeType = BiomeTypes.get(s2);
+                        if(biomeType == null) continue;
                         this.biomeTypes.add(biomeType);
                     }
                 }
             }
-            if (s.startsWith("§8Blocks: ")) {
-                s = s.replaceAll("§8Blocks: ", "");
-                if (!s.equals("none")) {
-                    for (String s2 : s.split(" ")) {
-                        String[] type = s2.split(":");
-                        BlockType mat = BlockTypes.get(type[0].toUpperCase());
-                        this.blocks.add(mat);
+            if (s.startsWith("Blocks: ")) {
+                s = s.replaceAll("Blocks: ", "");
+                if (!s.equals("None")) {
+                    for (String key : s.split(" ")) {
+                        BlockType blockType = BlockTypes.get(key);
+                        if(blockType == null) continue;
+                        this.blockTypes.add(blockType);
                     }
                 }
             }
-            if (s.startsWith("§8Mask: ")) {
-                s = s.replaceAll("§8Mask: ", "");
-                String[] type = s.split(":");
-                this.mask = BlockTypes.get(type[0].toUpperCase());
-                this.maskEnabled = true;
+            if (s.startsWith("Mask: ")) {
+                s = s.replaceAll("Mask: ", "");
+                BlockType blockType = BlockTypes.get(s);
+                if(blockType == null) continue;
+                this.mask = blockType;
             }
-            if (s.startsWith("§8Surface Mode")) {
-                this.surfaceEnabled = true;
+
+            if(biomeBrush) {
+                brush = GoPaint.getBrushManager().getBiomeBrush(name.replaceAll("§3GoPaint §7>§b Exported Brush §7>§b ", ""));
+            } else {
+                brush = GoPaint.getBrushManager().getColorBrush(name.replaceAll("§3GoPaint §7>§b Exported Brush §7>§b ", ""));
             }
         }
     }

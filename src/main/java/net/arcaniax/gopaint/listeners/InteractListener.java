@@ -78,7 +78,7 @@ public class InteractListener implements Listener {
         }
 
 
-        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_AIR)) {
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR) {
             location = player.getTargetBlock(null, 250).getLocation().clone();
         } else {
             location = event.getClickedBlock().getLocation().clone();
@@ -104,7 +104,7 @@ public class InteractListener implements Listener {
         if (!itemStack.getItemMeta().hasDisplayName()) {
             return null;
         }
-        if (!itemStack.getItemMeta().getDisplayName().startsWith(" §b♦ ")) {
+        if (!itemStack.getItemMeta().getDisplayName().startsWith("§3GoPaint §7>§b Exported Brush §7>§b ")) {
             return null;
         }
         if (!itemStack.getItemMeta().hasLore()) {

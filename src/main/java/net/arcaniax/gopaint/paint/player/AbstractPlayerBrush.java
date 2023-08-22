@@ -19,23 +19,17 @@
 package net.arcaniax.gopaint.paint.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.biome.BiomeTypes;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
-import net.arcaniax.gopaint.paint.brush.color.AngleBrush;
 import net.arcaniax.gopaint.paint.brush.Brush;
-import net.arcaniax.gopaint.paint.brush.color.DiscBrush;
-import net.arcaniax.gopaint.paint.brush.color.FractureBrush;
-import net.arcaniax.gopaint.paint.brush.color.GradientBrush;
-import net.arcaniax.gopaint.paint.brush.color.OverlayBrush;
-import net.arcaniax.gopaint.paint.brush.color.SplatterBrush;
-import net.arcaniax.gopaint.paint.brush.color.SprayBrush;
+import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +54,7 @@ public class AbstractPlayerBrush {
 
     Brush brush;
     BlockType mask;
-    List<BlockType> blocks;
+    List<BlockType> blockTypes;
     List<BiomeType> biomeTypes;
 
 
@@ -79,11 +73,12 @@ public class AbstractPlayerBrush {
         this.axis = "y";
         this.brush = GoPaint.getBrushManager().cycleColor((ColorBrush) brush);
         this.brushSize = GoPaint.getSettings().getDefaultSize();
-        this.blocks = new ArrayList<>();
-        this.blocks.add(BlockTypes.STONE);
+        this.blockTypes = new ArrayList<>();
+        this.blockTypes.add(BlockTypes.STONE);
         this.biomeTypes = new ArrayList<>();
+        this.biomeTypes.add(BiomeTypes.PLAINS);
 
-        mask = BlockTypes.SPONGE;
+        this.mask = BlockTypes.SPONGE;
     }
 
     public List<BiomeType> getBiomeTypes() {
@@ -101,9 +96,11 @@ public class AbstractPlayerBrush {
     public int getFalloffStrength() {
         return falloffStrength;
     }
+
     public void addFalloffStrength(int addedFalloff) {
         this.falloffStrength += addedFalloff;
     }
+
     public void removeFalloffStrength(int removedFalloff) {
         this.falloffStrength -= removedFalloff;
     }
@@ -149,7 +146,7 @@ public class AbstractPlayerBrush {
     }
 
     public List<BlockType> getBlocks() {
-        return blocks;
+        return blockTypes;
     }
 
     public boolean isBiome() {
@@ -159,8 +156,6 @@ public class AbstractPlayerBrush {
     public int getBrushSize() {
         return brushSize;
     }
-
-
 
 
     public boolean isEnabled() {
@@ -177,7 +172,6 @@ public class AbstractPlayerBrush {
     }
 
 
-
     public boolean isMaskEnabled() {
         return maskEnabled;
     }
@@ -190,6 +184,7 @@ public class AbstractPlayerBrush {
     public int getThickness() {
         return thickness;
     }
+
     public void changeThickness(int change) {
         thickness += change;
     }
@@ -204,72 +199,54 @@ public class AbstractPlayerBrush {
     }
 
 
-    public ItemStack export(ItemStack i) {
-        StringBuilder lore = new StringBuilder("___&8Size: " + brushSize);
+    public ItemStack export(ItemStack itemStack) {
+        ItemBuilder itemBuilder = new ItemBuilder(itemStack)
+                .setName("§3GoPaint §7>§b Exported Brush §7>§b " + brush.getName())
+                .addGlow();
 
-        if (brush instanceof SplatterBrush || brush instanceof SprayBrush) {
-            lore.append("___&8Chance: ").append(chance).append("%");
-        } else if (brush instanceof OverlayBrush) {
-            lore.append("___&8Thickness: ").append(thickness);
-        } else if (brush instanceof DiscBrush) {
-            lore.append("___&8Axis: ").append(axis);
-        } else if (brush instanceof AngleBrush) {
-            lore.append("___&8AngleDistance: ").append(this.angleDistance);
-            lore.append("___&8AngleHeightDifference: ").append(this.minAngleHeightDifference);
-        } else if (brush instanceof GradientBrush) {
-            lore.append("___&8Mixing: ").append(this.mixingStrength);
-            lore.append("___&8Falloff: ").append(this.falloffStrength);
-        } else if (brush instanceof FractureBrush) {
-            lore.append("___&8FractureDistance: ").append(this.fractureDistance);
-        }
+        // Add current settings
+        itemBuilder
+                .setList(
+                        "Brush Size: " + this.brushSize,
+                        "Place Chance: " + this.chance,
+                        "Thickness: " + this.thickness,
+                        "Axis: " + this.axis,
+                        "FractureDistance: " + this.fractureDistance,
+                        "AngleDistance: " + this.angleDistance,
+                        "AngleHeightDistance: " + this.minAngleHeightDifference,
+                        "Mixing: " + this.mixingStrength,
+                        "Falloff: " + this.falloffStrength,
+                        "Mask Enabled: " + this.maskEnabled,
+                        "Surface Mode: " + this.surfaceEnabled,
+                        "Biome Mode: " + this.biomeBrush,
+                        "Mask: " + getMaterialFromBlockType(this.mask).getKey()
+                );
 
-        lore.append("___&8Blocks:");
-        if (blocks.isEmpty()) {
-            lore.append(" none");
+        // Add all blocks
+        StringBuilder blocks = new StringBuilder();
+        blocks.append("Blocks: ");
+        if (blockTypes.isEmpty()) {
+            blocks.append("None");
         } else {
-            for (BlockType material : blocks) {
-                lore.append(" ").append(material.toString().toLowerCase());
+            for (BlockType blockType : blockTypes) {
+                blocks.append(" ").append(blockType.getId());
             }
         }
+        itemBuilder.addList(blocks.toString());
 
-        if(isBiome()) {
-            lore.append("___&8Biome Mode");
-        }
-
-        lore.append("___&8Biomes:");
+        // Add all biomes
+        StringBuilder biomes = new StringBuilder();
+        biomes.append("Biomes: ");
         if (biomeTypes.isEmpty()) {
-            lore.append(" none");
+            biomes.append("None");
         } else {
             for (BiomeType biomeType : biomeTypes) {
-                lore.append(" ").append(biomeType.getId());
+                biomes.append(" ").append(biomeType.getId());
             }
         }
+        itemBuilder.addList(biomes.toString());
 
-        if (maskEnabled) {
-            lore.append("___&8Mask: ").append(mask.toString());
-        }
-        if (surfaceEnabled) {
-            lore.append("___&8Surface Mode");
-        }
-
-        if(biomeBrush) {
-            lore.append("____&8Biome");
-        }
-        ItemMeta im = i.getItemMeta();
-        im.setDisplayName(" §b♦ " + brush.getName() + " §b♦ ");
-        if (!lore.toString().equals("")) {
-            String[] loreListArray = lore.toString().split("___");
-            List<String> loreList = new ArrayList<String>();
-            for (String s : loreListArray) {
-                loreList.add(s.replace("&", "§"));
-            }
-            im.setLore(loreList);
-        }
-        im.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        i.setItemMeta(im);
-
-        return i;
+        return itemBuilder.create();
     }
 
     public BlockType getBlockTypeFromMaterial(Material material) {
@@ -279,4 +256,5 @@ public class AbstractPlayerBrush {
     public Material getMaterialFromBlockType(BlockType blockType) {
         return Material.getMaterial(blockType.getId().replace(blockType.getNamespace() + ":", "").toUpperCase());
     }
+
 }
