@@ -32,6 +32,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ItemBuilder {
@@ -108,6 +109,26 @@ public class ItemBuilder {
      */
     public ItemBuilder setList(String ...list) {
         this.itemMeta.setLore(Arrays.asList(list));
+        return this;
+    }
+
+    public ItemBuilder addList(String ...list) {
+        List<String> currentList = this.itemMeta.getLore();
+
+        if(currentList == null) currentList = new ArrayList<>();
+
+        currentList.addAll(Arrays.asList(list));
+        this.itemMeta.setLore(currentList);
+        return this;
+    }
+
+    public ItemBuilder addList(List<String> lore) {
+        List<String> currentList = this.itemMeta.getLore();
+
+        if(currentList == null) currentList = new ArrayList<>();
+
+        currentList.addAll(lore);
+        this.itemMeta.setLore(currentList);
         return this;
     }
 
