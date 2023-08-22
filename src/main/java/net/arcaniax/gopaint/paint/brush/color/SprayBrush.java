@@ -37,7 +37,6 @@ public class SprayBrush extends ColorBrush {
         super(new BrushSettings[]{
                 BrushSettings.SIZE,
                 BrushSettings.CHANCE,
-                BrushSettings.FALLOFF_STRENGTH
         });
     }
 
@@ -67,7 +66,7 @@ public class SprayBrush extends ColorBrush {
             }
 
             // Check if the random number falls within the placement chance.
-            if (!(random.nextInt(100) < playerBrush.getChance())) {
+            if (random.nextInt(100)+1 > playerBrush.getChance()) {
                 continue;
             }
 
