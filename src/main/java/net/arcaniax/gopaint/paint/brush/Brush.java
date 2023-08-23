@@ -86,25 +86,9 @@ public abstract class Brush {
                 blockLocation.getBlockZ()
         );
 
-        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
-                clickedVector, editSession
-        )) {
-            return false; // Skip blocks that don't meet surface mode condition
+        if(block.isAir() || block.getMaterial().isLiquid()) {
+            return false;
         }
-
-        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
-            return false; // Skip blocks that don't meet the mask condition
-        }
-        return true;
-    }
-
-    public boolean canPlaceWithAir(EditSession editSession, MutableVector3 blockLocation, AbstractPlayerBrush playerBrush,
-                                   MutableVector3 clickedVector) {
-        BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(),
-                blockLocation.getBlockZ()
-        );
-
-        if(block.isAir()) return false;
 
         if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation.clone(),
                 clickedVector, editSession
