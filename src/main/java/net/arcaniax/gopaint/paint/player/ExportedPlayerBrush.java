@@ -41,6 +41,10 @@ public class ExportedPlayerBrush extends AbstractPlayerBrush {
         blockTypes = new ArrayList<>();
         biomeTypes = new ArrayList<>();
         for (String s : lore) {
+            if(s.startsWith("Placement: ")) {
+             this.placement = GoPaint.getPlacementManager().getPlacement(s.replace("Placement: ", ""));
+             continue;
+            }
             if (s.startsWith("Surface Mode: ")) {
                 this.surfaceEnabled = Boolean.parseBoolean(s.replaceAll("Surface Mode: ", ""));
                 continue;

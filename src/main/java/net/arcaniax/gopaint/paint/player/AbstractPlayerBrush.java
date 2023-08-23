@@ -208,7 +208,7 @@ public class AbstractPlayerBrush {
 
     public ItemStack export(ItemStack itemStack) {
         ItemBuilder itemBuilder = new ItemBuilder(itemStack)
-                .setName("§3GoPaint §7>§b Exported Brush §7>§b " + brush.getName())
+                .setName("§3GoPaint §7>§b Exported Brush §7>§b " + this.brush.getName())
                 .addGlow();
 
         // Add current settings
@@ -226,6 +226,7 @@ public class AbstractPlayerBrush {
                         "Mask Enabled: " + this.maskEnabled,
                         "Surface Mode: " + this.surfaceEnabled,
                         "Biome Mode: " + this.biomeBrush,
+                        "Placement: " + this.placement.getName(),
                         "Mask: " + getMaterialFromBlockType(this.mask).getKey()
                 );
 
