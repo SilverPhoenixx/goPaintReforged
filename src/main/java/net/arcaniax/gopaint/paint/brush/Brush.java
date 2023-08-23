@@ -41,7 +41,7 @@ public abstract class Brush {
     public Brush(BrushSettings[] settings) throws Exception {
         this.settings = settings;
 
-        if(settings.length >= 10) throw new IllegalArgumentException("You can only add 9 settings to a brush [in: " + this.getClass().getName() +
+        if(settings.length >= 8) throw new IllegalArgumentException("You can only add 9 settings to a brush [in: " + this.getClass().getName() +
                 "]");
     }
 
