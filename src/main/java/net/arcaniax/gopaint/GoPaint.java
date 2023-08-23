@@ -25,6 +25,7 @@ import net.arcaniax.gopaint.command.GoPaintCommand;
 import net.arcaniax.gopaint.listeners.PlayerQuitListener;
 import net.arcaniax.gopaint.listeners.InteractListener;
 import net.arcaniax.gopaint.listeners.InventoryListener;
+import net.arcaniax.gopaint.paint.brush.placement.PlacementManager;
 import net.arcaniax.gopaint.paint.player.PlayerBrushManager;
 import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
 import org.bstats.bukkit.Metrics;
@@ -53,7 +54,12 @@ public class GoPaint extends JavaPlugin implements Listener {
     /**
      * Manager of player brushes
      */
-    private static PlayerBrushManager manager;
+    private static PlayerBrushManager PLAYER_BRUSH_MANAGER;
+
+    /**
+     * Manager of placement methods
+     */
+    private static PlacementManager PLACEMENT_MANAGER;
 
     /**
      * Global settings (Load from config file)
@@ -63,7 +69,8 @@ public class GoPaint extends JavaPlugin implements Listener {
     public static void reload() {
         INSTANCE.reloadConfig();
 
-        manager = new PlayerBrushManager();
+        PLAYER_BRUSH_MANAGER = new PlayerBrushManager();
+        PLACEMENT_MANAGER = new PlacementManager();
 
         settings = new GlobalSettings(INSTANCE);
         settings.loadConfig();
@@ -74,7 +81,8 @@ public class GoPaint extends JavaPlugin implements Listener {
 
         this.saveDefaultConfig();
 
-        manager = new PlayerBrushManager();
+        PLAYER_BRUSH_MANAGER = new PlayerBrushManager();
+        PLACEMENT_MANAGER = new PlacementManager();
 
         settings = new GlobalSettings(this);
         settings.loadConfig();
@@ -128,7 +136,11 @@ public class GoPaint extends JavaPlugin implements Listener {
     }
 
     public static PlayerBrushManager getBrushManager() {
-        return manager;
+        return PLAYER_BRUSH_MANAGER;
+    }
+
+    public static PlacementManager getPlacementManager() {
+        return PLACEMENT_MANAGER;
     }
 
     public static GoPaint getInstance() {

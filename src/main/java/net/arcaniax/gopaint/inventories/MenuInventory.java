@@ -47,15 +47,12 @@ public class MenuInventory extends GoPaintInventory {
             this.inventory.setItem(slot, new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE).setName("§c").create());
         }
 
-        /*
-         Glass Pane for goPaint is enabled/disabled
-         */
+         /*
+        goPaint Item (Feather)
+        */
         Material material = playerBrush.isEnabled() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
         this.inventory.setItem(1, new ItemBuilder(material).setName("§7").create());
 
-        /*
-        goPaint Item (Feather)
-        */
         String goPaintStatus = playerBrush.isEnabled() ? "§a§lEnabled" : "§c§lDisabled";
         this.inventory.setItem(10,
                 new ItemBuilder(Material.FEATHER)
@@ -65,17 +62,15 @@ public class MenuInventory extends GoPaintInventory {
         );
 
 
-        // Brushes + Chance
-        this.inventory.setItem(2, new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).setName("§7").create());
-
-        /*
-        Brush Item with dynamic description
+       /*
+        Brush type item
         */
+        this.inventory.setItem(2, new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName("§7").create());
 
         ArrayList<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add("§7Shift click to select");
-        lore.add("§7Click to cycle brush");
+        lore.add("§7Right click to cycle upwards");
+        lore.add("§7Left click to cycle downwards");
         lore.add("");
         lore.add("");
         if (playerBrush.isBiome()) {
@@ -88,6 +83,53 @@ public class MenuInventory extends GoPaintInventory {
                 playerBrush
                         .getBrush()
                         .getSkin()).setList(lore).create());
+
+        /*
+        placement type item
+        */
+        this.inventory.setItem(3, new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName("§7").create());
+
+        ArrayList<String> lorePlacement = new ArrayList<>();
+        lorePlacement.add("");
+        lorePlacement.add("§7Right click to cycle upwards");
+        lorePlacement.add("§7Left click to cycle downwards");
+        lorePlacement.add("");
+        lorePlacement.add("");
+        GoPaint.getPlacementManager().appendPlacementLore(lorePlacement, playerBrush.getPlacement().getName());
+
+        this.inventory.setItem(12, new ItemBuilder(Material.CANDLE).setName("§6Selected Placement type").setList(lorePlacement).create());
+
+
+        // Surface Mode toggle
+        Material surfaceMaterial = playerBrush.isSurfaceModeEnabled()
+                ? Material.LIME_STAINED_GLASS_PANE
+                : Material.RED_STAINED_GLASS_PANE;
+        this.inventory.setItem(4, new ItemBuilder(surfaceMaterial).setName("§7").create());
+
+        String surfaceModeStatus = playerBrush.isSurfaceModeEnabled() ? "§a§lEnabled" : "§c§lDisabled";
+        this.inventory.setItem(13,
+                new ItemBuilder(Material.LIGHT_WEIGHTED_PRESSURE_PLATE)
+                        .setName("§6Surface Mode")
+                        .setList(surfaceModeStatus, "", "", "§7Click to toggle")
+                        .create()
+        );
+
+                /*
+          Biome Item
+         */
+        Material biomeMaterial = playerBrush.isBiome() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
+        this.inventory.setItem(5, new ItemBuilder(biomeMaterial).setName("§7").create());
+
+        /*
+
+         */
+        String biomeStatus = playerBrush.isBiome() ? "§a§lEnabled" : "§c§lDisabled";
+        this.inventory.setItem(14,
+                new ItemBuilder(Material.GRASS_BLOCK)
+                        .setName("§6goPaint Biomes")
+                        .setList(biomeStatus, "", "", "§7Right / Left click to toggle")
+                        .create()
+        );
 
         // Mask toggle
         Material maskStatusMaterial = playerBrush.isMaskEnabled()
@@ -102,44 +144,11 @@ public class MenuInventory extends GoPaintInventory {
         );
 
         // Mask Item Pane
-        this.inventory.setItem(7, new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).setName("§7").create());
+        this.inventory.setItem(7, new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setName("§7").create());
 
         Material maskItem = playerBrush.getMaterialFromBlockType(playerBrush.getMask());
         this.inventory.setItem(16,
                 new ItemBuilder(maskItem).setName("§6Mask Item").setList("§7Click with other block to change").create()
-        );
-
-
-        String surfaceModeStatus = playerBrush.isSurfaceModeEnabled() ? "§a§lEnabled" : "§c§lDisabled";
-        this.inventory.setItem(12,
-                new ItemBuilder(Material.LIGHT_WEIGHTED_PRESSURE_PLATE)
-                        .setName("§6Surface Mode")
-                        .setList(surfaceModeStatus, "", "", "§7Click to toggle")
-                        .create()
-        );
-
-        // Surface Mode toggle
-        Material surfaceMaterial = playerBrush.isSurfaceModeEnabled()
-                ? Material.LIME_STAINED_GLASS_PANE
-                : Material.RED_STAINED_GLASS_PANE;
-        this.inventory.setItem(3, new ItemBuilder(surfaceMaterial).setName("§7").create());
-
-
-                /*
-         Glass Pane for goPaint is enabled/disabled
-         */
-        Material biomeMaterial = playerBrush.isBiome() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE;
-        this.inventory.setItem(4, new ItemBuilder(biomeMaterial).setName("§7").create());
-
-        /*
-        Biome Item (GRASS_BLOCK)
-        */
-        String biomeStatus = playerBrush.isBiome() ? "§a§lEnabled" : "§c§lDisabled";
-        this.inventory.setItem(13,
-                new ItemBuilder(Material.GRASS_BLOCK)
-                        .setName("§6goPaint Biomes")
-                        .setList(biomeStatus, "", "", "§7Right / Left click to toggle")
-                        .create()
         );
 
 
@@ -277,9 +286,19 @@ public class MenuInventory extends GoPaintInventory {
                 }
             }
             case 3, 12 -> {
-                playerBrush.toggleSurfaceMode();
+                switch (event.getClick()) {
+                    case LEFT -> {
+                            playerBrush.cyclePlacement();
+                    }
+                    case RIGHT -> {
+                            playerBrush.cyclePlacementBackwards();
+                    }
+                }
             }
             case 4, 13 -> {
+                playerBrush.toggleSurfaceMode();
+            }
+            case 5, 14 -> {
                 playerBrush.toggleBiome();
             }
             case 6, 15 -> {
