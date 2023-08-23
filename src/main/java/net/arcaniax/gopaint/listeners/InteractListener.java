@@ -34,6 +34,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Set;
+
 public class InteractListener implements Listener {
 
     public GoPaint plugin;
@@ -79,7 +81,7 @@ public class InteractListener implements Listener {
 
 
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR) {
-            location = player.getTargetBlock(null, 250).getLocation().clone();
+            location = player.getTargetBlock(Set.of(Material.AIR, Material.WATER, Material.LAVA), 250).getLocation().clone();
         } else {
             location = event.getClickedBlock().getLocation().clone();
         }
