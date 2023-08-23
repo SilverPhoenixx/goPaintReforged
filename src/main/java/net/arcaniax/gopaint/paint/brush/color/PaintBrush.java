@@ -123,7 +123,7 @@ public class PaintBrush extends ColorBrush {
                 MutableVector3 currentLocation = bs.getPoint(y / (double) maxCount * (locs.size() - 1));
 
                 // Check if a block can be placed at the current location
-                if (!canPlaceWithAir(editSession, currentLocation, playerBrush, clickedVector)) {
+                if (!canPlace(editSession, currentLocation, playerBrush, clickedVector)) {
                     continue;
                 }
 
