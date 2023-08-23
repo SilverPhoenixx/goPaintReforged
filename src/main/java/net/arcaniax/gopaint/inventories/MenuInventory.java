@@ -309,7 +309,7 @@ public class MenuInventory extends GoPaintInventory {
                     if (event.getCursor() != null && event.getCursor().getType().isBlock() && event
                             .getCursor()
                             .getType()
-                            .isSolid() && (DisabledBlocks.isDisabled(event.getCursor().getType()))) {
+                            .isSolid() && (!DisabledBlocks.isDisabled(event.getCursor().getType()))) {
                         playerBrush.setMask(playerBrush.getBlockTypeFromMaterial(event.getCursor().getType()));
                     }
                 }
