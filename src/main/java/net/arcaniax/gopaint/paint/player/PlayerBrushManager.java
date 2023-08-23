@@ -26,10 +26,9 @@ import net.arcaniax.gopaint.paint.brush.Brush;
 import net.arcaniax.gopaint.paint.brush.color.BucketBrush;
 import net.arcaniax.gopaint.paint.brush.color.DiscBrush;
 import net.arcaniax.gopaint.paint.brush.color.FractureBrush;
-import net.arcaniax.gopaint.paint.brush.color.GradientBrush;
+import net.arcaniax.gopaint.paint.brush.color.SphereBrush;
 import net.arcaniax.gopaint.paint.brush.color.OverlayBrush;
 import net.arcaniax.gopaint.paint.brush.color.PaintBrush;
-import net.arcaniax.gopaint.paint.brush.color.SphereBrush;
 import net.arcaniax.gopaint.paint.brush.color.SplatterBrush;
 import net.arcaniax.gopaint.paint.brush.color.SprayBrush;
 import org.bukkit.entity.Player;
@@ -63,7 +62,6 @@ public class PlayerBrushManager {
             colorBrushes.add(new AngleBrush());
             colorBrushes.add(new OverlayBrush());
             colorBrushes.add(new FractureBrush());
-            colorBrushes.add(new GradientBrush());
             colorBrushes.add(new PaintBrush());
         } catch (Exception ignored) {
 

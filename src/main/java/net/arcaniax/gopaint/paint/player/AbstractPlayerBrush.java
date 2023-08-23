@@ -25,16 +25,17 @@ import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
 import net.arcaniax.gopaint.paint.brush.Brush;
+import net.arcaniax.gopaint.paint.brush.placement.Placement;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractPlayerBrush {
+
+    Placement placement;
 
     Boolean surfaceEnabled;
     Boolean maskEnabled;
@@ -79,6 +80,12 @@ public class AbstractPlayerBrush {
         this.biomeTypes.add(BiomeTypes.PLAINS);
 
         this.mask = BlockTypes.SPONGE;
+
+        this.placement = GoPaint.getPlacementManager().cyclePlacement(placement);
+    }
+
+    public Placement getPlacement() {
+        return placement;
     }
 
     public List<BiomeType> getBiomeTypes() {

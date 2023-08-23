@@ -93,6 +93,16 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
+    public void cyclePlacement() {
+        placement = GoPaint.getPlacementManager().cyclePlacement(placement);
+        updateInventory();
+    }
+
+    public void cyclePlacementBackwards() {
+        placement = GoPaint.getPlacementManager().cyclePlacementBackwards(placement);
+        updateInventory();
+    }
+
     public void changeBrushSize(int change) {
         this.brushSize += change;
     }
