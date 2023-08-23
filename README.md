@@ -14,7 +14,7 @@
 * Added biome brushes
 * Added more blocks you can use in brushes
 * Added better readability and performance
-* Currently no support for ExportedBrush
+* Added Export Brush for Biome and Color Brushes
 ---
 
 goPaint is a plugin that's designed to simplify painting inside of Minecraft,
@@ -32,14 +32,14 @@ Only 1.20.1 is tested
 * [Issues](https://github.com/Brennian/goPaint_1.14/issues)
 
 ## API
-**BiomeBrushes** are shown when "Biome" is enabled
-**ColorBrushes** are shown when "Biome" is disabled
 
+
+### Custom Brushes
 If you want to create a own brush just extend from **"BiomeBrush"** or **"ColorBrush"**\
-[in net.arcaniax.gopaint.paint.brush]
+[in net.arcaniax.gopaint.paint.brush.ColorBrush or net.arcaniax.gopaint.paint.brush.BiomeBrush]
 
-You can add only up to **9** settings for a brush.
-If you try to add more than 9, the constructor throws an error. **(IllegalArgumentException)**
+You can add only up to **7** settings for a brush.
+If you try to add more than 7, the constructor throws an error. **(IllegalArgumentException)**
 
 When you initialize your plugin add the brush to the PlayerBrushManager.\
 [GoPaint.getBrushManager()]
@@ -49,7 +49,7 @@ When you initialize your plugin add the brush to the PlayerBrushManager.\
 <br><br>
 **BiomeBrush:** GoPaint.getBrushManager().getBiomesBrushes().add(new ExampleBrush());
 
-## Example Class:
+Example Class:
 
     public class ExampleBrush extends ColorBrush {
         public ExampleBrush() {
@@ -83,6 +83,51 @@ When you initialize your plugin add the brush to the PlayerBrushManager.\
             ...
         }
     }
+
+### Custom Placement
+If you want to create a own placement just extend from **"Placement"**\
+[in net.arcaniax.gopaint.paint.placement.Placement]
+
+When you initialize your plugin add the placement to the PlacementManager.\
+[GoPaint.getPlacementManager()]
+
+### 
+**Placement:** **GoPaint.getPlacementManager().getPlacements().add(new ExamplePlacement());
+
+## Example Class:
+
+    public class ExamplePlacement extends Placement {
+
+    @Override
+    public void place(
+            final EditSession editSession,
+            final MutableVector3 blockVector,
+            final MutableVector3 clickedVector,
+            final Random random,
+            final AbstractPlayerBrush playerBrush
+    ) {
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+
+        int randomBlock = random.nextInt(brushBlocks.size());
+
+        try {
+            // Set the block to a randomly selected block type
+            editSession.setBlock(
+                    blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ(),
+                    brushBlocks.get(randomBlock).getDefaultState()
+            );
+        } catch (Exception ignored) {
+            // Handle any exceptions that may occur during block placement
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "Example Name";
+    }
+
+}
+
 
 ### Utils
 
