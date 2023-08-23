@@ -35,6 +35,7 @@ public class PlacementManager {
         try {
             placements.add(new RandomPlacement());
             placements.add(new GradientPlacement());
+            placements.add(new WithBlockDataPlacement());
         } catch (Exception ignored) {
 
         }
