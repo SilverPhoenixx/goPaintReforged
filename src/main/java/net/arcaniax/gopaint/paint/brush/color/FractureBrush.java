@@ -101,18 +101,7 @@ public class FractureBrush extends ColorBrush {
                 continue;
             }
 
-            // Generate a random index to choose a block from the available block types
-            int randomBlock = random.nextInt(brushBlocks.size());
-
-            try {
-                // Set the block at the current location to the randomly chosen block type
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // Handle any exceptions that may occur during block placement
-            }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 }

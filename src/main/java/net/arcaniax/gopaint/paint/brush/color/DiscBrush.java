@@ -91,15 +91,7 @@ public class DiscBrush extends ColorBrush {
                 continue;
             }
 
-            try {
-                // Set the block at the current location to the randomly chosen block type
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomIndex).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // Handle any exceptions that may occur during block placement
-            }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 }

@@ -25,7 +25,6 @@ import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
 import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -35,50 +34,11 @@ public class SphereBrush extends ColorBrush {
 
     public SphereBrush() throws Exception {
         super(new BrushSettings[]{
-                BrushSettings.SIZE
+                BrushSettings.SIZE,
+                BrushSettings.FALLOFF_STRENGTH,
+                BrushSettings.MIXING
         });
     }
-
-    @Override
-    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
-        // Check if there are no block types to paint.
-        List<BlockType> brushBlocks = playerBrush.getBlocks();
-        if (brushBlocks.isEmpty()) {
-            return;
-        }
-
-        // Get a list of block positions within a spherical radius (brush size).
-        int brushSize = playerBrush.getBrushSize();
-        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
-
-        Random random = new Random();
-
-        for (MutableVector3 blockLocation : blocks) {
-
-            // Check if this position is suitable for placing a block. If not, skip.
-            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
-                continue;
-            }
-
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
-            // Choose a random block type from the list.
-            int randomBlock = random.nextInt(brushBlocks.size());
-
-            // Attempt to set the block at the current position to a random block type from the list.
-            try {
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // Ignore any exceptions that occur during block placement.
-            }
-        }
-    }
-
 
     @Override
     public String getName() {
@@ -94,5 +54,45 @@ public class SphereBrush extends ColorBrush {
     public String getSkin() {
         return "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU5OGY0ODU2MDE0N2MwYTJkNGVkYzE3ZjZkOTg1ZThlYjVkOTRiZDcyZmM2MDc0NGE1YThmMmQ5MDVhMTgifX19";
     }
+
+    @Override
+    public void paintRight(AbstractPlayerBrush playerBrush, MutableVector3 clickedVector, Player player, EditSession editSession) {
+        // If there are no blocks to place, exit the method
+        List<BlockType> brushBlocks = playerBrush.getBlocks();
+        if (brushBlocks.isEmpty()) {
+            return;
+        }
+
+        // Get a list of block locations within the specified radius
+        int brushSize = playerBrush.getBrushSize();
+        List<MutableVector3> blocks = Sphere.getBlocksInRadius(clickedVector, brushSize, editSession);
+
+        int falloff = playerBrush.getFalloffStrength();
+        Random random = new Random();
+
+        for (MutableVector3 blockLocation : blocks) {
+            // Check if we can place a block at this location, if not, skip to the next location
+            if (!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
+                continue;
+            }
+
+            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+                continue;
+            }
+
+
+            // Calculate the rate of block placement based on falloff strength and distance
+            double rate = (blockLocation.distance(clickedVector) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0)) /
+                    (((double) brushSize / 2.0) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0));
+
+            // Check if the random value falls within the placement rate
+            if ((random.nextDouble() <= rate)) {
+                continue;
+            }
+
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
+        }
+    }
+
 
 }

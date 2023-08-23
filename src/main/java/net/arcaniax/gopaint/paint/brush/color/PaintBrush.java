@@ -118,8 +118,6 @@ public class PaintBrush extends ColorBrush {
             BezierSpline bs = new BezierSpline(newCurve);
             double length = bs.getCurveLength();
 
-            int randomBlock = random.nextInt(brushBlocks.size());
-
             // Iterate over points on the spline and place blocks if conditions are met
             for (int maxCount = (int) (length * 2.5) + 1, y = 0; y <= maxCount; ++y) {
                 MutableVector3 currentLocation = bs.getPoint(y / (double) maxCount * (locs.size() - 1));
@@ -129,13 +127,7 @@ public class PaintBrush extends ColorBrush {
                     continue;
                 }
 
-                // Set the block at the current location to a randomly selected block from the brush
-                editSession.setBlock(
-                        currentLocation.getBlockX(),
-                        currentLocation.getBlockY(),
-                        currentLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock)
-                );
+                playerBrush.getPlacement().place(editSession, currentLocation, clickedVector, random, playerBrush);
             }
         }
     }

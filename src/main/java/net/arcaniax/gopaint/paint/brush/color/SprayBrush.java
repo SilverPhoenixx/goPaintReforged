@@ -70,17 +70,7 @@ public class SprayBrush extends ColorBrush {
                 continue;
             }
 
-            // Choose a random block type.
-            // Attempt to set the block at the current position to a random block type.
-            int randomBlock = random.nextInt(brushBlocks.size());
-            try {
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // Ignore any exceptions that occur during block placement.
-            }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 

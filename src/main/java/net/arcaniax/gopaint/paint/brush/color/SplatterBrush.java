@@ -75,19 +75,7 @@ public class SplatterBrush extends ColorBrush {
                 continue;
             }
 
-            // Generate a random index to select a block type from the list of block types.
-            int randomBlock = random.nextInt(brushBlocks.size());
-
-
-            // Attempt to set the block at the current location to a random block type from the list.
-            try {
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // If there's an exception while setting the block, ignore it and continue.
-            }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 

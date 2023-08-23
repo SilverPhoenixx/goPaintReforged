@@ -101,17 +101,7 @@ public class AngleBrush extends ColorBrush {
                 continue;
             }
 
-            int randomBlock = random.nextInt(brushBlocks.size());
-
-            try {
-                // Set the block to a randomly selected block type
-                editSession.setBlock(
-                        blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                        brushBlocks.get(randomBlock).getDefaultState()
-                );
-            } catch (Exception ignored) {
-                // Handle any exceptions that may occur during block placement
-            }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 

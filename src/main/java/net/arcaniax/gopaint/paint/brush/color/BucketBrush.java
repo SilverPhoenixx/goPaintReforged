@@ -89,21 +89,7 @@ public class BucketBrush extends ColorBrush {
                 continue;
             }
 
-            // Get the current block's state
-            BlockState block = editSession.getBlock(blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ());
-
-                // Generate a random index to choose a block from the available block types
-                int randomIndex = random.nextInt(brushBlocks.size());
-
-                try {
-                    // Set the block to a randomly selected block type, preserving its properties
-                    editSession.setBlock(
-                            blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ(),
-                            brushBlocks.get(randomIndex).getDefaultState().withProperties(block)
-                    );
-                } catch (Exception ignored) {
-                    // Handle any exceptions that may occur during block placement
-                }
+            playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
     }
 }
