@@ -93,5 +93,4 @@ public class Surface {
         // If no solid blocks were encountered, return true (the block is on the surface)
         return true;
     }
-
 }
