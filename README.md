@@ -16,8 +16,7 @@
 * Added more blocks you can use in brushes
 * Added better readability and performance
 * Added Export Brush for Biome and Color brushes\
-<br>
-### Development
+#### Development
 * Added Brush Manager for easily add new brushes
 * Added Placement Manager for easily add placement methods
 * Added Setting Enums
