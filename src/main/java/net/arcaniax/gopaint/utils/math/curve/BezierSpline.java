@@ -18,7 +18,6 @@
  */
 package net.arcaniax.gopaint.utils.math.curve;
 
-
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.bukkit.util.Vector;
 

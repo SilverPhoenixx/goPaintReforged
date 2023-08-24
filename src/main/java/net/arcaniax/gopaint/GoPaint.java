@@ -36,10 +36,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.incendo.serverlib.ServerLib;
 
-/**
- * The main class for the goPaint plugin.
- */
-public class GoPaint extends JavaPlugin implements Listener {
+public class GoPaint extends JavaPlugin {
 
     /**
      * Instance of the plugin
