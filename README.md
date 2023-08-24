@@ -6,15 +6,23 @@
 
 ## Initial Developer
 * Arcaniax
-* His plugin is supporting different versions from currently 1.13 - 1.19
 
 ## Refractored
+
+#### Overview
 * Refractored by _SilverPhoenix
-* Added easy brush implementation api
 * Added biome brushes
+* Added placement types
 * Added more blocks you can use in brushes
 * Added better readability and performance
-* Added Export Brush for Biome and Color Brushes
+* Added Export Brush for Biome and Color brushes\
+<br>
+#### Development
+* Added Brush Manager for easily add new brushes
+* Added Placement Manager for easily add placement methods
+* Added Setting Enums
+* Rewrote entire inventory behaivour
+
 ---
 
 goPaint is a plugin that's designed to simplify painting inside of Minecraft,
