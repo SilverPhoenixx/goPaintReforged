@@ -94,7 +94,7 @@ When you initialize your plugin add the placement to the PlacementManager.\
 ### 
 **Placement:** **GoPaint.getPlacementManager().getPlacements().add(new ExamplePlacement());
 
-## Example Class:
+Example Class:
 
     public class ExamplePlacement extends Placement {
 
