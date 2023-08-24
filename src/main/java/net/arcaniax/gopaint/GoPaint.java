@@ -67,7 +67,7 @@ public class GoPaint extends JavaPlugin {
      */
     public void onEnable() {
         INSTANCE = this;
-        //Test 8
+
         this.saveDefaultConfig();
 
         load();
