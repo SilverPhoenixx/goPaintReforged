@@ -18,29 +18,28 @@
  */
 package net.arcaniax.gopaint;
 
-import com.sk89q.worldedit.world.block.BlockType;
-import com.sk89q.worldedit.world.block.BlockTypes;
 import io.papermc.lib.PaperLib;
 import net.arcaniax.gopaint.command.GoPaintCommand;
 import net.arcaniax.gopaint.listeners.PlayerQuitListener;
 import net.arcaniax.gopaint.listeners.InteractListener;
 import net.arcaniax.gopaint.listeners.InventoryListener;
-import net.arcaniax.gopaint.paint.brush.placement.PlacementManager;
-import net.arcaniax.gopaint.paint.player.PlayerBrushManager;
+import net.arcaniax.gopaint.managers.GlobalSettingsManager;
+import net.arcaniax.gopaint.managers.PlacementManager;
+import net.arcaniax.gopaint.managers.PlayerBrushManager;
 import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.incendo.serverlib.ServerLib;
 
-
+/**
+ * The main class for the goPaint plugin.
+ */
 public class GoPaint extends JavaPlugin implements Listener {
-
 
     /**
      * Instance of the plugin
@@ -64,29 +63,17 @@ public class GoPaint extends JavaPlugin implements Listener {
     /**
      * Global settings (Load from config file)
      */
-    private static GlobalSettings settings;
+    private static GlobalSettingsManager GLOBAL_SETTINGS_MANAGER;
 
-    public static void reload() {
-        INSTANCE.reloadConfig();
-
-        PLAYER_BRUSH_MANAGER = new PlayerBrushManager();
-        PLACEMENT_MANAGER = new PlacementManager();
-
-        settings = new GlobalSettings(INSTANCE);
-        settings.loadConfig();
-    }
-
+    /**
+     * Called when the plugin is enabled.
+     */
     public void onEnable() {
         INSTANCE = this;
 
         this.saveDefaultConfig();
 
-        PLAYER_BRUSH_MANAGER = new PlayerBrushManager();
-        PLACEMENT_MANAGER = new PlacementManager();
-
-        settings = new GlobalSettings(this);
-        settings.loadConfig();
-
+        load();
 
         registerListener();
         registerCommands();
@@ -131,20 +118,55 @@ public class GoPaint extends JavaPlugin implements Listener {
         getCommand("gopaint").setExecutor(goPaintCommand);
     }
 
-    public static GlobalSettings getSettings() {
-        return settings;
+    /**
+     * Reloads the plugin configuration.
+     */
+    public static void reload() {
+        INSTANCE.reloadConfig();
+        load();
     }
 
+    private static void load() {
+        PLAYER_BRUSH_MANAGER = new PlayerBrushManager(INSTANCE);
+        PLACEMENT_MANAGER = new PlacementManager(INSTANCE);
+
+        GLOBAL_SETTINGS_MANAGER = new GlobalSettingsManager(INSTANCE);
+        GLOBAL_SETTINGS_MANAGER.loadConfig();
+    }
+
+    /**
+     * Get the global settings manager.
+     *
+     * @return The global settings manager.
+     */
+    public static GlobalSettingsManager getSettings() {
+        return GLOBAL_SETTINGS_MANAGER;
+    }
+
+    /**
+     * Get the player brush manager.
+     *
+     * @return The player brush manager.
+     */
     public static PlayerBrushManager getBrushManager() {
         return PLAYER_BRUSH_MANAGER;
     }
 
+    /**
+     * Get the placement manager.
+     *
+     * @return The placement manager.
+     */
     public static PlacementManager getPlacementManager() {
         return PLACEMENT_MANAGER;
     }
 
+    /**
+     * Get the instance of the plugin.
+     *
+     * @return The plugin instance.
+     */
     public static GoPaint getInstance() {
         return INSTANCE;
     }
-
 }

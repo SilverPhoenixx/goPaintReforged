@@ -28,12 +28,25 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class InventoryListener implements Listener {
 
+    /**
+     * The GoPaint plugin instance.
+     */
     public GoPaint plugin;
 
+    /**
+     * Constructor for InventoryListener.
+     *
+     * @param plugin The GoPaint plugin instance.
+     */
     public InventoryListener(GoPaint plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Handles the click event in the custom GoPaint inventory.
+     *
+     * @param event The InventoryClickEvent object representing the event.
+     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void menuClick(InventoryClickEvent event) {
         try {
@@ -49,6 +62,7 @@ public class InventoryListener implements Listener {
             }
             event.setCancelled(true);
 
+            // Call the interactInventory method of the custom inventory.
             goPaintInventory.interactInventory(event);
         } catch (NullPointerException e) {
             event.setCancelled(true);

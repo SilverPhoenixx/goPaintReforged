@@ -18,7 +18,7 @@
  */
 package net.arcaniax.gopaint.inventories;
 
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -26,13 +26,33 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class GoPaintInventory implements InventoryHolder {
 
+    /**
+     * The inventory associated with this GoPaintInventory.
+     */
     protected Inventory inventory;
 
+    /**
+     * Get the inventory associated with this GoPaintInventory.
+     *
+     * @return The inventory.
+     */
     @Override
     public @NotNull Inventory getInventory() {
         return inventory;
     }
 
+    /**
+     * Create a custom inventory for a specific player brush.
+     *
+     * @param playerBrush The PlayerBrush associated with the inventory.
+     * @return The created custom inventory.
+     */
     public abstract Inventory createInventory(PlayerBrush playerBrush);
+
+    /**
+     * Handle interactions with the custom inventory.
+     *
+     * @param event The InventoryClickEvent representing the interaction event.
+     */
     public abstract void interactInventory(InventoryClickEvent event);
 }

@@ -16,35 +16,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.brush.settings;
+package net.arcaniax.gopaint.paint.settings;
 
-import net.arcaniax.gopaint.GoPaint;
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class FractureSetting extends AbstractSetting {
+public class ChanceSetting extends AbstractSetting {
+
 
     @Override
-    public ItemStack getItem(final PlayerBrush playerBrush) {
-        return new ItemBuilder(Material.DAYLIGHT_DETECTOR)
-                .setName("§6Fracture Check Distance: §e" + playerBrush.getFractureDistance())
+    public ItemStack getItem(PlayerBrush playerBrush) {
+        return new ItemBuilder(Material.GOLD_NUGGET)
+                .setName("§6Place chance: §e" + playerBrush.getChance() + "%")
                 .setList("", "§7Left click to increase", "§7Right click to decrease")
                 .create();
     }
 
     public void increase(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getFractureDistance() < GoPaint.getSettings().getMaxFractureDistance()) {
-             playerBrush.changeFracture(1);
+        if (playerBrush.getChance() < 90) {
+            playerBrush.changeChance(10);
         }
         playerBrush.updateInventory();
     }
 
     public void decrease(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getFractureDistance() > 1) {
-            playerBrush.changeFracture(-1);
+        if (playerBrush.getChance() > 10) {
+            playerBrush.changeChance(-10);
         }
         playerBrush.updateInventory();
     }
+
+
 }

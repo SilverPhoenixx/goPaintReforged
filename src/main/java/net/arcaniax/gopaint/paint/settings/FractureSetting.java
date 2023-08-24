@@ -16,45 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.brush.settings;
+package net.arcaniax.gopaint.paint.settings;
 
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class AxisSetting extends AbstractSetting {
+public class FractureSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return new ItemBuilder(Material.COMPASS)
-                .setName( "§6Axis: §e" + playerBrush.getAxis())
-                .setList( "", "§7Click to change")
+        return new ItemBuilder(Material.DAYLIGHT_DETECTOR)
+                .setName("§6Fracture Check Distance: §e" + playerBrush.getFractureDistance())
+                .setList("", "§7Left click to increase", "§7Right click to decrease")
                 .create();
     }
 
-    @Override
-    public void increase(final PlayerBrush playerBrush, final boolean isShifting) {
-        String newAxis = switch (playerBrush.getAxis()) {
-            case "y" -> "z";
-            case "z" -> "x";
-            case "x" -> "y";
-            default -> playerBrush.getAxis();
-        };
-        playerBrush.changeAxis(newAxis);
+    public void increase(PlayerBrush playerBrush, boolean isShifting) {
+        if (playerBrush.getFractureDistance() < GoPaint.getSettings().getMaxFractureDistance()) {
+             playerBrush.changeFracture(1);
+        }
         playerBrush.updateInventory();
     }
 
-    @Override
-    public void decrease(final PlayerBrush playerBrush, final boolean isShifting) {
-        String newAxis = switch (playerBrush.getAxis()) {
-            case "x" -> "z";
-            case "y" -> "x";
-            case "z" -> "y";
-            default -> playerBrush.getAxis();
-        };
-        playerBrush.changeAxis(newAxis);
+    public void decrease(PlayerBrush playerBrush, boolean isShifting) {
+        if (playerBrush.getFractureDistance() > 1) {
+            playerBrush.changeFracture(-1);
+        }
         playerBrush.updateInventory();
     }
-
 }

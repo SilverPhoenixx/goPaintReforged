@@ -26,15 +26,29 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerQuitListener implements Listener {
 
+    /**
+     * The GoPaint plugin instance.
+     */
     public GoPaint plugin;
 
+    /**
+     * Constructor for PlayerQuitListener.
+     *
+     * @param plugin The GoPaint plugin instance.
+     */
     public PlayerQuitListener(GoPaint plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Handles the player quit event.
+     *
+     * @param event The PlayerQuitEvent object representing the event.
+     */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onQuit(PlayerQuitEvent e) {
-        GoPaint.getBrushManager().removePlayerBrush(e.getPlayer());
+    public void onQuit(PlayerQuitEvent event) {
+        // Remove the player's brush when they quit.
+        GoPaint.getBrushManager().removePlayerBrush(event.getPlayer());
     }
 
 }

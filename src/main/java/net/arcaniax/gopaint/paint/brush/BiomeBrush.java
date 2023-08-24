@@ -18,12 +18,7 @@
  */
 package net.arcaniax.gopaint.paint.brush;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.world.block.BlockState;
-import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
-import net.arcaniax.gopaint.utils.math.Surface;
-import net.arcaniax.gopaint.utils.vectors.MutableVector3;
+import net.arcaniax.gopaint.paint.settings.BrushSettings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -36,35 +31,24 @@ public abstract class BiomeBrush extends Brush {
         super(settings);
     }
 
+    /**
+     * Update chunks in the world to refresh biome information.
+     *
+     * @param player  The player for getting the world information
+     * @param chunks  A list of pairs representing chunk coordinates (X, Z).
+     */
     public void update(Player player, List<Pair<Integer, Integer>> chunks) {
         World world = player.getWorld();
 
+        // Loop through the provided chunks and refresh them
         chunks.forEach(chunk -> {
             int x = chunk.getLeft();
             int z = chunk.getRight();
 
-            // Not a good option but it works
+            // Check if the chunk is loaded before refreshing it
             if (world.isChunkLoaded(x, z)) {
                 world.refreshChunk(x, z);
             }
         });
     }
-    /*
-    public void update(Player player, List<Pair<Integer, Integer>> chunks) {
-        World world = player.getWorld();
-
-        for(Pair<Integer, Integer> chunkCoords : chunks) {
-            Chunk bukkitChunk = player.getWorld().getChunkAt(chunkCoords.getLeft(), chunkCoords.getRight());
-            LevelChunk minecraftChunk =
-                    (LevelChunk) ((CraftChunk) bukkitChunk).getHandle(ChunkStatus.BIOMES);
-
-            ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(minecraftChunk,
-                    minecraftChunk.getLevel().getLightEngine(), null, null);
-
-
-            for(Player worldPlayer : player.getWorld().getPlayers())
-            ((CraftPlayer) worldPlayer).getHandle().connection.send(packet);
-        }
-    }
-    */
 }

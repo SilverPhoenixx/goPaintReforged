@@ -16,14 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.player;
+package net.arcaniax.gopaint.paint.brush.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
 import net.arcaniax.gopaint.GoPaint;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -31,10 +30,21 @@ import java.util.List;
 
 public class ExportedPlayerBrush extends AbstractPlayerBrush {
 
+    /**
+     * Creates an ExportedPlayerBrush object from an ItemStack.
+     *
+     * @param itemStack The ItemStack to create the ExportedPlayerBrush from.
+     */
     public ExportedPlayerBrush(ItemStack itemStack) {
         this(itemStack.getItemMeta().getDisplayName(), itemStack.getItemMeta().getLore());
     }
 
+    /**
+     * Creates an ExportedPlayerBrush object with the provided name and lore.
+     *
+     * @param name The name of the brush.
+     * @param lore The lore associated with the brush item.
+     */
     public ExportedPlayerBrush(String name, List<String> lore) {
         this.enabled = true;
 

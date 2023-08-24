@@ -16,34 +16,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.brush.settings;
+package net.arcaniax.gopaint.paint.settings;
 
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class MixingSetting extends AbstractSetting {
+public class AxisSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return new ItemBuilder(Material.MAGMA_CREAM)
-                .setName("§6Mixing Strength: §e" + playerBrush.getMixingStrength() + "%")
-                .setList("", "§7Left click to increase", "§7Right click to decrease")
+        return new ItemBuilder(Material.COMPASS)
+                .setName( "§6Axis: §e" + playerBrush.getAxis())
+                .setList( "", "§7Click to change")
                 .create();
     }
 
-    public void decrease(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getMixingStrength() >= 10) {
-            playerBrush.changeMixingStrength(-10);
-        }
+    @Override
+    public void increase(final PlayerBrush playerBrush, final boolean isShifting) {
+        String newAxis = switch (playerBrush.getAxis()) {
+            case "y" -> "z";
+            case "z" -> "x";
+            case "x" -> "y";
+            default -> playerBrush.getAxis();
+        };
+        playerBrush.changeAxis(newAxis);
         playerBrush.updateInventory();
     }
 
-    public void increase(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getMixingStrength() <= 90) {
-            playerBrush.changeMixingStrength(10);
-        }
+    @Override
+    public void decrease(final PlayerBrush playerBrush, final boolean isShifting) {
+        String newAxis = switch (playerBrush.getAxis()) {
+            case "x" -> "z";
+            case "y" -> "x";
+            case "z" -> "y";
+            default -> playerBrush.getAxis();
+        };
+        playerBrush.changeAxis(newAxis);
         playerBrush.updateInventory();
     }
+
 }

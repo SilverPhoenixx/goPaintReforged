@@ -16,33 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.brush.settings;
+package net.arcaniax.gopaint.paint.settings;
 
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.GoPaint;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class FalloffStrengthSetting extends AbstractSetting {
+public class ThicknessSetting extends AbstractSetting {
 
     @Override
     public ItemStack getItem(final PlayerBrush playerBrush) {
-        return new ItemBuilder(Material.BLAZE_POWDER)
-                .setName("§6Falloff Strength: §e" + playerBrush.getFalloffStrength() + "%")
+        return new ItemBuilder(Material.BOOK)
+                .setName("§6Layer Thickness: §e" + playerBrush.getThickness())
                 .setList("", "§7Left click to increase", "§7Right click to decrease")
                 .create();
     }
 
     public void increase(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getFalloffStrength() <= 90) {
-            playerBrush.addFalloffStrength(10);
+        if (playerBrush.getThickness() < GoPaint.getSettings().getMaxThickness()) {
+            playerBrush.changeThickness(1);
         }
         playerBrush.updateInventory();
     }
 
     public void decrease(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getFalloffStrength() >= 10) {
-            playerBrush.removeFalloffStrength(10);
+        if (playerBrush.getThickness() > 1) {
+            playerBrush.changeThickness(-1);
         }
         playerBrush.updateInventory();
     }

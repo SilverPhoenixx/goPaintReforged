@@ -60,7 +60,7 @@ public class ItemBuilder {
     /**
      *
      * @param name sets display name of the ItemStack
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setName(String name) {
         this.itemMeta.setDisplayName(name);
@@ -70,7 +70,7 @@ public class ItemBuilder {
     /**
      *
      * @param damage set item durability
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setDurability(short damage) {
         this.itemStack.setDurability(damage);
@@ -82,7 +82,7 @@ public class ItemBuilder {
      * @param red color between 0-255
      * @param green color between 0-255
      * @param blue color between 0-255
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setRGB(int red, int green, int blue) {
         if(!(itemMeta instanceof LeatherArmorMeta)) return this;
@@ -95,7 +95,7 @@ public class ItemBuilder {
     /**
      *
      * @param amount of the current ItemStack
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setAmount(int amount) {
         this.itemStack.setAmount(amount);
@@ -105,37 +105,57 @@ public class ItemBuilder {
     /**
      * Sets the lore of specified ItemStack
      * @param list of ItemStack (Lore)
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setList(String ...list) {
         this.itemMeta.setLore(Arrays.asList(list));
         return this;
     }
 
-    public ItemBuilder addList(String ...list) {
+    /**
+     * Adds a list of lore lines to the item's lore.
+     *
+     * @param list An array of lore lines to add.
+     * @return The ItemBuilder instance for method chaining.
+     */
+    public ItemBuilder addList(String... list) {
         List<String> currentList = this.itemMeta.getLore();
 
-        if(currentList == null) currentList = new ArrayList<>();
+        if (currentList == null) {
+            currentList = new ArrayList<>();
+        }
 
         currentList.addAll(Arrays.asList(list));
+
         this.itemMeta.setLore(currentList);
-        return this;
-    }
 
-    public ItemBuilder addList(List<String> lore) {
-        List<String> currentList = this.itemMeta.getLore();
-
-        if(currentList == null) currentList = new ArrayList<>();
-
-        currentList.addAll(lore);
-        this.itemMeta.setLore(currentList);
         return this;
     }
 
     /**
+     * Adds a list of lore lines to the item's lore.
+     *
+     * @param lore A list of lore lines to add.
+     * @return The ItemBuilder instance for method chaining.
+     */
+    public ItemBuilder addList(List<String> lore) {
+        List<String> currentList = this.itemMeta.getLore();
+
+        if (currentList == null) {
+            currentList = new ArrayList<>();
+        }
+
+        currentList.addAll(lore);
+        this.itemMeta.setLore(currentList);
+
+        return this;
+    }
+
+
+    /**
      * Sets the lore of specified ItemStack
      * @param list of ItemStack (Lore)
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setList(ArrayList<String> list) {
         this.itemMeta.setLore(list);
@@ -145,7 +165,7 @@ public class ItemBuilder {
     /**
      * Adds enchantment glint to ItemStack
      * (Adding "Arrow Damage" as enchantment and hides all enchantments)
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder addGlow() {
         this.itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
@@ -157,7 +177,7 @@ public class ItemBuilder {
      * Sets the head skin to specified Base64 value
      * Important: Only available for PLAYER_HEAD
      * @param base64 Base64 skin value
-     * @return the instance
+     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder setCustomHead(String base64) {
         if(!(itemMeta instanceof SkullMeta)) return this;

@@ -18,7 +18,7 @@
  */
 package net.arcaniax.gopaint.paint.brush;
 
-import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.settings.BrushSettings;
 
 public abstract class ColorBrush extends Brush {
 

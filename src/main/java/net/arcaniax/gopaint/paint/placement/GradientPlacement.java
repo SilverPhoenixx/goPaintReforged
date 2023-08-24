@@ -1,8 +1,8 @@
-package net.arcaniax.gopaint.paint.brush.placement;
+package net.arcaniax.gopaint.paint.placement;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.world.block.BlockType;
-import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 import java.util.List;

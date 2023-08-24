@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.player;
+package net.arcaniax.gopaint.paint.brush.player;
 
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.block.BlockType;
@@ -24,7 +24,6 @@ import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.inventories.MenuInventory;
 import net.arcaniax.gopaint.paint.brush.BiomeBrush;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -32,14 +31,28 @@ public class PlayerBrush extends AbstractPlayerBrush {
 
     private final Player player;
 
+    /**
+     * Represents a PlayerBrush for a specific player.
+     *
+     * @param player The player associated with this brush.
+     */
     public PlayerBrush(Player player) {
         this.player = player;
     }
 
+    /**
+     * Updates the player's inventory with a menu for this brush.
+     */
     public void updateInventory() {
         player.openInventory(new MenuInventory().createInventory(this));
     }
 
+    /**
+     * Adds a block type to the brush at a specific slot.
+     *
+     * @param material The material of the block to add.
+     * @param slot     The slot where the block type should be added.
+     */
     public void addBlock(Material material, int slot) {
         if (blockTypes.size() >= slot) {
             blockTypes.set(slot - 1, getBlockTypeFromMaterial(material));
@@ -49,6 +62,11 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
+    /**
+     * Removes a block type from the brush at a specific slot.
+     *
+     * @param slot The slot from which the block type should be removed.
+     */
     public void removeBlock(int slot) {
         if (blockTypes.size() >= slot) {
             blockTypes.remove(slot - 1);
@@ -56,6 +74,12 @@ public class PlayerBrush extends AbstractPlayerBrush {
         }
     }
 
+    /**
+     * Adds a biome type to the brush at a specific slot.
+     *
+     * @param biomeType The biome type to add.
+     * @param slot      The slot where the biome type should be added.
+     */
     public void addBiomes(BiomeType biomeType, int slot) {
         if (biomeTypes.size() >= slot) {
             biomeTypes.set(slot - 1, biomeType);
@@ -65,6 +89,11 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
+    /**
+     * Removes a biome type from the brush at a specific slot.
+     *
+     * @param slot The slot from which the biome type should be removed.
+     */
     public void removeBiome(int slot) {
         if (biomeTypes.size() >= slot) {
             biomeTypes.remove(slot - 1);
@@ -72,40 +101,68 @@ public class PlayerBrush extends AbstractPlayerBrush {
         }
     }
 
-
+    /**
+     * Cycles the color brush to the next color.
+     */
     public void cycleColorBrush() {
         brush = GoPaint.getBrushManager().cycleColor((ColorBrush) brush);
         updateInventory();
     }
 
+    /**
+     * Cycles the color brush to the previous color.
+     */
     public void cycleColorBrushBackwards() {
         brush = GoPaint.getBrushManager().cycleBackColor((ColorBrush) brush);
         updateInventory();
     }
 
+    /**
+     * Cycles the biome brush to the next biome.
+     */
     public void cycleBiomeBrush() {
         brush = GoPaint.getBrushManager().cycleBiomes((BiomeBrush) brush);
         updateInventory();
     }
 
+    /**
+     * Cycles the biome brush to the previous biome.
+     */
     public void cycleBiomeBrushBackwards() {
         brush = GoPaint.getBrushManager().cycleBackBiomes((BiomeBrush) brush);
         updateInventory();
     }
 
+    /**
+     * Cycles the placement type.
+     */
     public void cyclePlacement() {
         placement = GoPaint.getPlacementManager().cyclePlacement(placement);
         updateInventory();
     }
 
+    /**
+     * Cycles the placement type backwards.
+     */
     public void cyclePlacementBackwards() {
         placement = GoPaint.getPlacementManager().cyclePlacementBackwards(placement);
         updateInventory();
     }
 
+    /**
+     * Changes the brush size by the specified amount.
+     *
+     * @param change The amount by which to change the brush size.
+     */
     public void changeBrushSize(int change) {
         this.brushSize += change;
     }
+
+    /**
+     * Sets the brush size to the specified size, considering the maximum size allowed.
+     *
+     * @param size The size to set for the brush.
+     */
     public void setBrushSize(int size) {
         if (size <= GoPaint.getSettings().getMaxSize() && size > 0) {
             brushSize = size;
@@ -117,20 +174,31 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
+    /**
+     * Sets the mask for the brush.
+     *
+     * @param material The material to set as the mask.
+     */
     public void setMask(BlockType material) {
         this.mask = material;
         updateInventory();
     }
 
+    /**
+     * Toggles the enabled state of the brush.
+     */
     public void toggleEnabled() {
         enabled = !enabled;
         updateInventory();
     }
 
+    /**
+     * Toggles between biome and color brush modes.
+     */
     public void toggleBiome() {
         biomeBrush = !biomeBrush;
 
-        if(biomeBrush) {
+        if (biomeBrush) {
             brush = GoPaint.getBrushManager().getBiomesBrushes().get(0);
         } else {
             brush = GoPaint.getBrushManager().getColorBrushes().get(0);
@@ -139,11 +207,17 @@ public class PlayerBrush extends AbstractPlayerBrush {
         updateInventory();
     }
 
+    /**
+     * Toggles the mask enabled state of the brush.
+     */
     public void toggleMask() {
         maskEnabled = !maskEnabled;
         updateInventory();
     }
 
+    /**
+     * Toggles the surface mode of the brush.
+     */
     public void toggleSurfaceMode() {
         surfaceEnabled = !surfaceEnabled;
         updateInventory();

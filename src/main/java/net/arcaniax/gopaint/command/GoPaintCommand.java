@@ -19,7 +19,7 @@
 package net.arcaniax.gopaint.command;
 
 import net.arcaniax.gopaint.GoPaint;
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -33,10 +33,24 @@ public class GoPaintCommand implements CommandExecutor {
 
     private GoPaint plugin;
 
+    /**
+     * Constructor for GoPaintCommand.
+     *
+     * @param plugin The GoPaint plugin instance.
+     */
     public GoPaintCommand(GoPaint plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Executes the /gp command.
+     *
+     * @param sender The command sender.
+     * @param cmd    The command.
+     * @param label  The command label.
+     * @param args   The command arguments.
+     * @return true if the command was executed successfully, false otherwise.
+     */
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -109,7 +123,12 @@ public class GoPaintCommand implements CommandExecutor {
         return false;
     }
 
-
+    /**
+     * Sends a help message to the player.
+     *
+     * @param player The player to send the help message to.
+     * @param prefix The plugin prefix.
+     */
     public void sendHelpMessage(Player player, String prefix) {
         if (!player.hasPermission("gopaint.admin")) {
             player.sendMessage(prefix + "§c/gp size§7|§ctoggle§7|§cinfo");

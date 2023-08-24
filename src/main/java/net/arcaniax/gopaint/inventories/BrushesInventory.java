@@ -20,7 +20,7 @@ package net.arcaniax.gopaint.inventories;
 
 import net.arcaniax.gopaint.GoPaint;
 import net.arcaniax.gopaint.paint.brush.Brush;
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

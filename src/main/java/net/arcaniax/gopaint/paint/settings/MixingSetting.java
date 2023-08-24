@@ -16,37 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package net.arcaniax.gopaint.paint.brush.settings;
+package net.arcaniax.gopaint.paint.settings;
 
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class ChanceSetting extends AbstractSetting {
-
+public class MixingSetting extends AbstractSetting {
 
     @Override
-    public ItemStack getItem(PlayerBrush playerBrush) {
-        return new ItemBuilder(Material.GOLD_NUGGET)
-                .setName("§6Place chance: §e" + playerBrush.getChance() + "%")
+    public ItemStack getItem(final PlayerBrush playerBrush) {
+        return new ItemBuilder(Material.MAGMA_CREAM)
+                .setName("§6Mixing Strength: §e" + playerBrush.getMixingStrength() + "%")
                 .setList("", "§7Left click to increase", "§7Right click to decrease")
                 .create();
     }
 
-    public void increase(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getChance() < 90) {
-            playerBrush.changeChance(10);
-        }
-        playerBrush.updateInventory();
-    }
-
     public void decrease(PlayerBrush playerBrush, boolean isShifting) {
-        if (playerBrush.getChance() > 10) {
-            playerBrush.changeChance(-10);
+        if (playerBrush.getMixingStrength() >= 10) {
+            playerBrush.changeMixingStrength(-10);
         }
         playerBrush.updateInventory();
     }
 
-
+    public void increase(PlayerBrush playerBrush, boolean isShifting) {
+        if (playerBrush.getMixingStrength() <= 90) {
+            playerBrush.changeMixingStrength(10);
+        }
+        playerBrush.updateInventory();
+    }
 }

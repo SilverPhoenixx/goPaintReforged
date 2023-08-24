@@ -21,12 +21,11 @@ package net.arcaniax.gopaint.paint.brush.color;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.world.block.BlockType;
 import net.arcaniax.gopaint.paint.brush.ColorBrush;
-import net.arcaniax.gopaint.paint.brush.settings.BrushSettings;
-import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.settings.BrushSettings;
+import net.arcaniax.gopaint.paint.brush.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.math.Height;
 import net.arcaniax.gopaint.utils.math.Sphere;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;

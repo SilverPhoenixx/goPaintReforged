@@ -21,7 +21,7 @@ package net.arcaniax.gopaint.inventories;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
 import net.arcaniax.gopaint.GoPaint;
-import net.arcaniax.gopaint.paint.player.PlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.PlayerBrush;
 import net.arcaniax.gopaint.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

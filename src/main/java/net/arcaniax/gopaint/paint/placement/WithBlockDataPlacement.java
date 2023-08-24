@@ -1,14 +1,15 @@
-package net.arcaniax.gopaint.paint.brush.placement;
+package net.arcaniax.gopaint.paint.placement;
 
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
-import net.arcaniax.gopaint.paint.player.AbstractPlayerBrush;
+import net.arcaniax.gopaint.paint.brush.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 
 import java.util.List;
 import java.util.Random;
 
-public class RandomPlacement extends Placement {
+public class WithBlockDataPlacement extends Placement {
 
     @Override
     public void place(
@@ -18,6 +19,7 @@ public class RandomPlacement extends Placement {
             final Random random,
             final AbstractPlayerBrush playerBrush
     ) {
+        BlockState blockState = editSession.getBlock(blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ());
         List<BlockType> brushBlocks = playerBrush.getBlocks();
 
         int randomBlock = random.nextInt(brushBlocks.size());
@@ -26,16 +28,17 @@ public class RandomPlacement extends Placement {
             // Set the block to a randomly selected block type
             editSession.setBlock(
                     blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ(),
-                    brushBlocks.get(randomBlock).getDefaultState()
+                    brushBlocks.get(randomBlock).getDefaultState().withProperties(blockState)
             );
         } catch (Exception ignored) {
             // Handle any exceptions that may occur during block placement
         }
     }
 
+
     @Override
     public String getName() {
-        return "Random";
+        return "With BlockData";
     }
 
 }
