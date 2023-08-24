@@ -76,10 +76,6 @@ public class SphereBrush extends ColorBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
 
             // Calculate the rate of block placement based on falloff strength and distance
             double rate = (blockLocation.distance(clickedVector) - ((double) brushSize / 2.0) * ((100.0 - (double) falloff) / 100.0)) /

@@ -75,11 +75,7 @@ public class BucketBrush extends ColorBrush {
 
         for (MutableVector3 blockLocation : connectedBlocks) {
             // Check if surface mode is enabled and the block is not on the surface, skip if true
-            if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockLocation, playerVector, editSession)) {
-                continue;
-            }
-
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
+            if(!canPlace(editSession, blockLocation, playerBrush, clickedVector)) {
                 continue;
             }
 

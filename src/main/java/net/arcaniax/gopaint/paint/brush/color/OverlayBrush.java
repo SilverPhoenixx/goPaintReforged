@@ -60,10 +60,6 @@ public class OverlayBrush extends ColorBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
             // Check if the block location is on top of another block (height check)
             if (!Height.isOnTop(blockLocation, playerBrush.getThickness(), editSession)) {
                 continue;

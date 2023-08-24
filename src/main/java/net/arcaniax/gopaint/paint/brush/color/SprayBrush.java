@@ -60,10 +60,6 @@ public class SprayBrush extends ColorBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
             // Check if the random number falls within the placement chance.
             if (random.nextInt(100)+1 > playerBrush.getChance()) {
                 continue;

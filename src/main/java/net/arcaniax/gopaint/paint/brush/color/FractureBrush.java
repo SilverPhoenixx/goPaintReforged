@@ -75,10 +75,6 @@ public class FractureBrush extends ColorBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
             // Calculate the average height difference for the current block and its surroundings
             double blockHeightDiffFracture = Height.getAverageHeightDiffFracture(
                     blockLocation,

@@ -76,10 +76,6 @@ public class AngleBrush extends ColorBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
             // Calculate the block's average height difference with nearby blocks
             double blockHeightDifference = Height.getAverageHeightDiffAngle(blockLocation, 1, editSession);
 

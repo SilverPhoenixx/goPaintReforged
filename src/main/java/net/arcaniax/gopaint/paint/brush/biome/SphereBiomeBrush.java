@@ -63,10 +63,6 @@ public class SphereBiomeBrush extends BiomeBrush {
                 continue;
             }
 
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
-
             // Generate a random index to choose a biome type from the available biome types
             int randomBlock = random.nextInt(brushBiomes.size());
 

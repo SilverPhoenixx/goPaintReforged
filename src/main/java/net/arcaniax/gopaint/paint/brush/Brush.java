@@ -138,9 +138,11 @@ public abstract class Brush {
             return false; // Skip blocks that don't meet surface mode condition
         }
 
-        if (playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask()) {
+        if ((playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask())
+                && !isGmask(editSession, blockVector)) {
             return false; // Skip blocks that don't meet the mask condition
         }
+
         return true;
     }
 
@@ -151,8 +153,8 @@ public abstract class Brush {
      * @param blockVector The vector representing the block location.
      * @return True if a mask is applied, otherwise false.
      */
-    public boolean isGmask(EditSession session, BlockVector3 blockVector) {
-        return session.getActor().getSession().getMask() == null || session.getActor().getSession().getMask().test(blockVector);
+    public boolean isGmask(EditSession session, MutableVector3 blockVector) {
+        return session.getActor().getSession().getMask() == null || session.getActor().getSession().getMask().test(blockVector.toBlockPoint());
     }
 
     /**

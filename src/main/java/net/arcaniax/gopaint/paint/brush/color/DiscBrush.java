@@ -82,13 +82,6 @@ public class DiscBrush extends ColorBrush {
                 continue;
             }
 
-            // Generate a random index to choose a block from the available block types
-            int randomIndex = random.nextInt(brushBlocks.size());
-
-            // Check if the block location is not masked (can be overwritten)
-            if (!isGmask(editSession, blockLocation.toBlockPoint())) {
-                continue;
-            }
 
             playerBrush.getPlacement().place(editSession, blockLocation, clickedVector, random, playerBrush);
         }
