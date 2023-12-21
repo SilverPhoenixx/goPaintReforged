@@ -132,18 +132,16 @@ public abstract class Brush {
             return false;
         }
 
-        if (playerBrush.isSurfaceModeEnabled() && !Surface.isOnSurface(blockVector.clone(),
-                clickedVector, editSession
-        )) {
+        if (playerBrush.isSurfaceModeEnabled()
+                && !Surface.isOnSurface(blockVector.clone(), clickedVector, editSession)) {
             return false; // Skip blocks that don't meet surface mode condition
         }
 
-        if ((playerBrush.isMaskEnabled() && block.getBlockType() != playerBrush.getMask())
-                && !isGmask(editSession, blockVector)) {
-            return false; // Skip blocks that don't meet the mask condition
+        if(playerBrush.isMaskEnabled()) {
+            if (block.getBlockType() != playerBrush.getMask()) return false;
         }
 
-        return true;
+        return isGmask(editSession, blockVector); // Skip blocks that don't meet the mask condition
     }
 
     /**
