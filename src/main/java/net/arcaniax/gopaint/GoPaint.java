@@ -27,14 +27,11 @@ import net.arcaniax.gopaint.managers.GlobalSettingsManager;
 import net.arcaniax.gopaint.managers.PlacementManager;
 import net.arcaniax.gopaint.managers.PlayerBrushManager;
 import net.arcaniax.gopaint.utils.blocks.DisabledBlocks;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
+
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.incendo.serverlib.ServerLib;
 
 public class GoPaint extends JavaPlugin {
 
@@ -75,19 +72,6 @@ public class GoPaint extends JavaPlugin {
         registerCommands();
 
         DisabledBlocks.addBlocks();
-
-        // Check if we are in a safe environment
-        ServerLib.checkUnsafeForks();
-        ServerLib.isJavaSixteen();
-        PaperLib.suggestPaper(this);
-
-        Metrics metrics = new Metrics(this, BSTATS_ID);
-
-        metrics.addCustomChart(new SimplePie(
-                "worldeditImplementation",
-                () -> Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null ? "FastAsyncWorldEdit" : "WorldEdit"
-        ));
-
     }
 
     /**
