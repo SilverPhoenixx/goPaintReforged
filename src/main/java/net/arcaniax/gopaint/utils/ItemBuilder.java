@@ -22,12 +22,14 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_20_R3.profile.CraftPlayerProfile;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -176,28 +178,23 @@ public class ItemBuilder {
     /**
      * Sets the head skin to specified Base64 value
      * Important: Only available for PLAYER_HEAD
-     * @param base64 Base64 skin value
+     * @param data Base64 skin value
      * @return The ItemBuilder instance for method chaining.
      */
-    public ItemBuilder setCustomHead(String base64) {
-        if(!(itemMeta instanceof SkullMeta)) return this;
-        if (base64.isEmpty()) return this;
 
-        SkullMeta headMeta = (SkullMeta) itemMeta;
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+    public ItemBuilder setCustomHead(String data) {
+        if(!(itemMeta instanceof SkullMeta headMeta)) return this;
+        if (data.isEmpty()) return this;
 
-        profile.getProperties().put("textures", new Property("textures", base64));
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "name");
 
-        try {
-            Field profileField = headMeta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(headMeta, profile);
+        profile.getProperties().put("textures", new Property("textures", data));
+        PlayerProfile playerProfile = new CraftPlayerProfile(profile);
 
-        } catch (IllegalArgumentException|NoSuchFieldException|SecurityException | IllegalAccessException error) {
-            error.printStackTrace();
-        }
+        headMeta.setOwnerProfile(playerProfile);
         return this;
     }
+
 
     /**
      * Creates the ItemStack with changed ItemMeta
