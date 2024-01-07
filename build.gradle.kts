@@ -37,8 +37,6 @@ repositories {
     maven {
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
 
-        // As of Gradle 5.1, you can limit this to only those
-        // dependencies you expect from it
         content {
             includeGroup("org.bukkit")
             includeGroup("org.spigotmc")
@@ -62,13 +60,10 @@ repositories {
 dependencies {
     implementation(platform("com.intellectualsites.bom:bom-newest:1.25"))
 
-    compileOnly("org.spigotmc:spigot:1.19.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT")
 
     compileOnly("com.mojang:authlib:1.5.25")
     compileOnlyApi("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
-    implementation("dev.notmyfault.serverlib:ServerLib")
-    implementation("org.bstats:bstats-bukkit:3.0.1")
-    implementation("org.bstats:bstats-base:3.0.1")
     implementation("io.papermc:paperlib")
 }
 
@@ -80,7 +75,7 @@ bukkit {
     name = "goPaint"
     main = "net.arcaniax.gopaint.GoPaint"
     authors = listOf("Arcaniax")
-    apiVersion = "1.13"
+    apiVersion = "1.20"
     version = project.version.toString()
     depend = listOf("WorldEdit")
     website = "https://www.spigotmc.org/resources/27717/"
@@ -108,26 +103,11 @@ bukkit {
 tasks.named<ShadowJar>("shadowJar") {
     archiveClassifier.set(null as String?)
     dependencies {
-        relocate("org.incendo.serverlib", "net.arcaniax.gopaint.serverlib") {
-            include(dependency("dev.notmyfault.serverlib:ServerLib:2.3.1"))
-        }
-        relocate("org.bstats", "net.arcaniax.gopaint.metrics") {
-            include(dependency("org.bstats:bstats-base"))
-            include(dependency("org.bstats:bstats-bukkit"))
-        }
         relocate("io.papermc.lib", "net.arcaniax.gopaint.paperlib") {
             include(dependency("io.papermc:paperlib:1.0.8"))
         }
     }
     minimize()
-}
-
-spotless {
-    java {
-        licenseHeaderFile(rootProject.file("HEADER.txt"))
-        targetExclude("**/XMaterial.java")
-        target("**/*.java")
-    }
 }
 
 tasks.named<Copy>("processResources") {

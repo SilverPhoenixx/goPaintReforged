@@ -18,7 +18,12 @@
  */
 package net.arcaniax.gopaint.paint.brush;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.world.block.BlockState;
+import net.arcaniax.gopaint.paint.brush.player.AbstractPlayerBrush;
 import net.arcaniax.gopaint.paint.settings.BrushSettings;
+import net.arcaniax.gopaint.utils.math.Surface;
+import net.arcaniax.gopaint.utils.vectors.MutableVector3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -51,4 +56,32 @@ public abstract class BiomeBrush extends Brush {
             }
         });
     }
+
+    /**
+     * Check if a block can be placed at a given location.
+     *
+     * @param editSession    The EditSession to check block placement.
+     * @param blockVector  The vector representing the block's location.
+     * @param playerBrush    The player's brush settings.
+     * @param clickedVector  The vector representing the location clicked by the player.
+     * @return True if the block can be placed, otherwise false.
+     */
+    public boolean canPlace(EditSession editSession, MutableVector3 blockVector, AbstractPlayerBrush playerBrush,
+                            MutableVector3 clickedVector) {
+        BlockState block = editSession.getBlock(blockVector.getBlockX(), blockVector.getBlockY(),
+                blockVector.getBlockZ()
+        );
+
+        if (playerBrush.isSurfaceModeEnabled()
+                && !Surface.isOnSurface(blockVector.clone(), clickedVector, editSession)) {
+            return false; // Skip blocks that don't meet surface mode condition
+        }
+
+        if(playerBrush.isMaskEnabled()) {
+            if (block.getBlockType() != playerBrush.getMask()) return false;
+        }
+
+        return isGmask(editSession, blockVector); // Skip blocks that don't meet the mask condition
+    }
+
 }
