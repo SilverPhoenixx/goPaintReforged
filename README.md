@@ -5,8 +5,8 @@
 ---
 
 ## Initial Developer
-* Arcaniax
-original: https://github.com/Arcaniax-Development/goPaint_1.14\
+* Arcaniax \
+original: https://github.com/Arcaniax-Development/goPaint_1.14 \
 download: https://www.spigotmc.org/resources/gopaint.27717/
 
 ## Refractored
